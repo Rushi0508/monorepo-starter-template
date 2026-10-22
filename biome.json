@@ -1,0 +1,118 @@
+{
+	"$schema": "https://biomejs.dev/schemas/2.6.2/schema.json",
+	"vcs": {
+		"enabled": true,
+		"clientKind": "git",
+		"useIgnoreFile": true
+	},
+	"files": {
+		"ignoreUnknown": false
+	},
+	"formatter": {
+		"enabled": true,
+		"indentStyle": "tab",
+		"indentWidth": 2
+	},
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"preset": "recommended",
+			"complexity": {
+				"noStaticOnlyClass": "off"
+			},
+			"style": {
+				"useImportType": "off"
+			}
+		}
+	},
+	"css": {
+		"parser": {
+			"tailwindDirectives": true
+		},
+		"formatter": {
+			"enabled": true
+		},
+		"linter": {
+			"enabled": true
+		}
+	},
+	"javascript": {
+		"formatter": {
+			"jsxQuoteStyle": "single",
+			"quoteProperties": "asNeeded",
+			"trailingCommas": "es5",
+			"semicolons": "always",
+			"quoteStyle": "single",
+			"bracketSpacing": true,
+			"bracketSameLine": false,
+			"arrowParentheses": "always"
+		},
+		"parser": {
+			"unsafeParameterDecoratorsEnabled": true
+		}
+	},
+	"json": {
+		"formatter": {
+			"enabled": true
+		}
+	},
+	"assist": {
+		"enabled": true,
+		"actions": {
+			"source": {
+				"organizeImports": "on"
+			}
+		}
+	},
+	"overrides": [
+		{
+			"includes": ["apps/web/**", "packages/ui/**"],
+			"linter": {
+				"rules": {
+					"a11y": {
+						"useKeyWithClickEvents": "off",
+						"noStaticElementInteractions": "off",
+						"useSemanticElements": "off",
+						"useFocusableInteractive": "off",
+						"noLabelWithoutControl": "off"
+					},
+					"suspicious": {
+						"noUnknownAtRules": "off",
+						"noArrayIndexKey": "off"
+					},
+					"security": {
+						"noDangerouslySetInnerHtml": "off"
+					}
+				},
+				"domains": {
+					"next": "recommended",
+					"react": "recommended"
+				}
+			}
+		},
+		{
+			"includes": ["apps/server/**"],
+			"linter": {
+				"rules": {
+					"style": {
+						"useImportType": "off",
+						"noNonNullAssertion": "off"
+					},
+					"suspicious": {
+						"noExplicitAny": "off"
+					}
+				}
+			}
+		},
+		{
+			"includes": ["packages/db/**"],
+			"linter": {
+				"rules": {
+					"style": {
+						"noNonNullAssertion": "off"
+					}
+				}
+			}
+		}
+	]
+}

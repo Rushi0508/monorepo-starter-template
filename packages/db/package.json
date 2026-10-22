@@ -1,0 +1,27 @@
+{
+	"name": "@repo/db",
+	"version": "0.0.0",
+	"private": true,
+	"main": "./generated/prisma/index.js",
+	"types": "./generated/prisma/index.d.ts",
+	"exports": {
+		".": "./generated/prisma/index.js"
+	},
+	"scripts": {
+		"postinstall": "prisma generate",
+		"db:generate": "prisma generate",
+		"db:migrate": "prisma migrate dev",
+		"db:migrate-create-only": "prisma migrate dev --create-only",
+		"db:deploy": "prisma migrate deploy",
+		"db:studio": "prisma studio"
+	},
+	"dependencies": {
+		"@prisma/client": "^7.10.1",
+		"@prisma/client-runtime-utils": "^7.10.1",
+		"dotenv": "^18.0.9"
+	},
+	"devDependencies": {
+		"@repo/typescript-config": "workspace:*",
+		"prisma": "^7.10.1"
+	}
+}

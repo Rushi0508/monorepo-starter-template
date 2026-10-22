@@ -1,0 +1,17 @@
+{
+	"name": "@repo/utils",
+	"version": "0.0.0",
+	"private": true,
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"scripts": {
+		"build": "rm -rf dist && tsc --build --force tsconfig.json",
+		"dev": "tsc --build --watch --preserveWatchOutput tsconfig.json",
+		"typecheck": "tsc --noEmit",
+		"postinstall": "pnpm build"
+	},
+	"dependencies": {},
+	"devDependencies": {
+		"@repo/typescript-config": "workspace:*"
+	}
+}

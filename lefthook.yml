@@ -1,0 +1,32 @@
+pre-commit:
+  piped: true
+  jobs:
+    - name: gitleaks
+      run: pnpm gitleaks git --pre-commit --staged --redact --no-banner
+
+    - name: checks
+      group:
+        parallel: true
+        jobs:
+          - name: fix
+            group:
+              piped: true
+              jobs:
+                - name: format
+                  run: pnpm format:fix
+                  stage_fixed: true
+
+                - name: lint
+                  run: pnpm lint
+                  stage_fixed: true
+
+          - name: typecheck
+            run: pnpm typecheck
+
+          - name: depcruise
+            run: pnpm depcruise
+
+commit-msg:
+  jobs:
+    - name: commitlint
+      run: pnpm exec commitlint --edit {1}

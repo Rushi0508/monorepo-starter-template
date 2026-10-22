@@ -1,0 +1,50 @@
+name: Checks & Linting
+
+on:
+  pull_request:
+    branches: [main, master, dev, staging, prod]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 10.0.0
+          cache: true
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Scan for secrets
+        run: pnpm gitleaks git --redact --no-banner --log-opts="origin/${{ github.base_ref }}..HEAD"
+
+      - name: Run linting
+        run: pnpm lint:check
+
+      - name: Check formatting
+        run: pnpm format:check
+
+      - name: Generate Prisma client
+        run: pnpm db:generate
+
+      - name: Check types
+        run: pnpm typecheck
+
+      - name: Check import rules
+        run: pnpm depcruise
