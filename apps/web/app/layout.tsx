@@ -1,13 +1,16 @@
 import type { Metadata } from 'next';
-import { Geist_Mono, Inter } from 'next/font/google';
+import { Google_Sans, Source_Serif_4 } from 'next/font/google';
 import { Suspense } from 'react';
 import '@repo/ui/globals.css';
 import { cn } from '@repo/ui/lib/utils';
 import GlobalLoading from './loading';
 import Providers from './providers';
 
-const fontSans = Inter({ subsets: ['latin'], variable: '--font-sans' });
-const fontMono = Geist_Mono({ subsets: ['latin'], variable: '--font-mono' });
+const fontSans = Google_Sans({ subsets: ['latin'], variable: '--font-sans' });
+const fontHeading = Source_Serif_4({
+	subsets: ['latin'],
+	variable: '--font-heading-family',
+});
 
 export const metadata: Metadata = {
 	title: 'Starter',
@@ -24,7 +27,7 @@ export default function RootLayout({
 			className={cn(
 				'antialiased font-sans',
 				fontSans.variable,
-				fontMono.variable
+				fontHeading.variable
 			)}
 		>
 			<body>
