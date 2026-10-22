@@ -33,14 +33,9 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import SignInWithGoogle from '@/components/auth/SignInWithGoogle';
 import LoadingButton from '@/components/general/LoadingButton';
 import { useResendCooldown } from '@/hooks/useResendCooldown';
-import {
-	isAbsoluteUrl,
-	resolveAuthCallbackUrl,
-	resolveOAuthContinueUrl,
-} from '@/lib/auth-callback-url';
+import { isAbsoluteUrl, resolveAuthCallbackUrl } from '@/lib/auth-callback-url';
 import { emailOtp, signIn } from '@/lib/auth-client';
 
 // Shared fade+slide transition for all step switches
@@ -56,14 +51,10 @@ export default function LoginForm() {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const callbackURL = resolveAuthCallbackUrl(searchParams.get('callbackURL'));
-	const oauthContinueURL = resolveOAuthContinueUrl(
-		new URLSearchParams(searchParams.toString())
-	);
-	const postLoginURL = oauthContinueURL ?? callbackURL;
+	const postLoginURL = callbackURL;
 	const [step, setStep] = useState<'email' | 'otp'>('email');
 	const [pendingEmail, setPendingEmail] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
-	const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 	const [isResending, setIsResending] = useState(false);
 	const { secondsLeft, isCooldown, startCooldown } = useResendCooldown();
 
@@ -121,10 +112,6 @@ export default function LoginForm() {
 			}
 			router.push(postLoginURL);
 		} catch {
-			if (oauthContinueURL) {
-				window.location.assign(oauthContinueURL);
-				return;
-			}
 			toast.error('Failed to sign in. Try again.', { duration: 10000 });
 		} finally {
 			setIsLoading(false);
@@ -169,14 +156,14 @@ export default function LoginForm() {
 						<div className='relative mx-auto size-14'>
 							<Image
 								src='/images/logo.png'
-								alt='Sauero logo'
+								alt='Starter logo'
 								fill
 								className='object-contain'
 								priority
 							/>
 						</div>
 						<CardTitle className='font-heading text-primary text-center text-4xl font-normal'>
-							Welcome to Sauero
+							Welcome to Starter
 						</CardTitle>
 						{/* Description animates when step changes */}
 						<AnimatePresence mode='wait'>
@@ -220,7 +207,7 @@ export default function LoginForm() {
 														<FormControl>
 															<Input
 																type='email'
-																placeholder='example@sauero.com'
+																placeholder='you@example.com'
 																{...field}
 															/>
 														</FormControl>
@@ -231,32 +218,11 @@ export default function LoginForm() {
 											<LoadingButton
 												type='submit'
 												className='w-full'
-												disabled={
-													emailForm.formState.isSubmitting ||
-													isLoading ||
-													isGoogleLoading
-												}
+												disabled={emailForm.formState.isSubmitting || isLoading}
 												isLoading={isLoading}
 											>
 												Send OTP
 											</LoadingButton>
-
-											<div className='relative'>
-												<div className='absolute inset-0 flex items-center'>
-													<span className='w-full border-t' />
-												</div>
-												<div className='relative flex justify-center text-xs uppercase'>
-													<span className='bg-card text-muted-foreground px-2'>
-														or continue with
-													</span>
-												</div>
-											</div>
-
-											<SignInWithGoogle
-												callbackUrl={postLoginURL}
-												disabled={isLoading}
-												onLoadingChange={setIsGoogleLoading}
-											/>
 										</form>
 									</Form>
 								</motion.div>

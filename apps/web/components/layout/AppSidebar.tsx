@@ -1,6 +1,5 @@
 'use client';
 
-import { Badge } from '@repo/ui/components/badge';
 import {
 	Breadcrumb,
 	BreadcrumbItem,
@@ -23,7 +22,6 @@ import {
 	SidebarHeader,
 	SidebarInset,
 	SidebarMenu,
-	SidebarMenuBadge,
 	SidebarMenuButton,
 	SidebarMenuItem,
 	SidebarMenuSub,
@@ -33,14 +31,13 @@ import {
 	SidebarTrigger,
 	useSidebar,
 } from '@repo/ui/components/sidebar';
-import { ChevronRight } from 'lucide-react';
+import { ArrowUpRight, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import * as React from 'react';
 import { useMemo, useRef } from 'react';
-import { APP_ROUTES, type RouteBadge } from '@/config/routes';
+import { APP_ROUTES, type RouteAction } from '@/config/routes';
 import { useBreadcrumb } from '@/contexts/BreadcrumbContext';
-import { useFolkMappingSummary } from '@/queries';
 import { NavHeader } from './NavHeader';
 import NavSearch from './NavSearch';
 import ProfileDropdown from './ProfileDropdown';
@@ -120,11 +117,7 @@ export function AppSidebar({
 	const contentRef = useRef<HTMLDivElement>(null);
 	const { setOpenMobile, isMobile, open } = useSidebar();
 	const { segments: breadcrumbSegments } = useBreadcrumb();
-	const { data: folkSummary } = useFolkMappingSummary();
-
-	const badgeCounts: Record<RouteBadge, number> = {
-		'folk-pending-review': folkSummary?.PENDING_REVIEW ?? 0,
-	};
+	const routeActionHandlers: Record<RouteAction, () => void> = {};
 
 	const breadcrumbs = useMemo(
 		() => generateBreadcrumbs(pathname, breadcrumbSegments),
@@ -155,6 +148,25 @@ export function AppSidebar({
 							<SidebarGroupContent>
 								<SidebarMenu className='gap-1'>
 									{items.map((item) => {
+										if (item.action) {
+											const runAction = routeActionHandlers[item.action];
+											return (
+												<SidebarMenuItem key={item.name}>
+													<SidebarMenuButton
+														tooltip={item.name}
+														onClick={() => {
+															runAction?.();
+															handleLinkClick();
+														}}
+													>
+														{item.icon && <item.icon />}
+														<span>{item.name}</span>
+														<ArrowUpRight className='ml-auto opacity-60' />
+													</SidebarMenuButton>
+												</SidebarMenuItem>
+											);
+										}
+
 										const href = item.href ?? '/';
 										const isActive =
 											pathname === href ||
@@ -204,8 +216,6 @@ export function AppSidebar({
 											);
 										}
 
-										const badgeCount = item.badge ? badgeCounts[item.badge] : 0;
-
 										return (
 											<SidebarMenuItem key={item.name}>
 												<SidebarMenuButton
@@ -218,13 +228,6 @@ export function AppSidebar({
 														<span>{item.name}</span>
 													</Link>
 												</SidebarMenuButton>
-												{badgeCount > 0 && (
-													<SidebarMenuBadge>
-														<Badge className='text-[10px] py-0.5 px-1'>
-															{badgeCount}
-														</Badge>
-													</SidebarMenuBadge>
-												)}
 											</SidebarMenuItem>
 										);
 									})}

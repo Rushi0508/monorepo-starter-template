@@ -7,8 +7,8 @@ import '@repo/ui/globals.css';
 import { ReactQueryClientProvider } from '@/lib/tanstack-query';
 
 export const metadata: Metadata = {
-	title: 'Sauero',
-	description: 'Sauero',
+	title: 'Starter',
+	description: 'Next.js + NestJS monorepo starter',
 };
 
 export default function RootLayout({

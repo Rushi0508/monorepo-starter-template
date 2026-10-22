@@ -36,10 +36,6 @@
 		"db:studio": {
 			"cache": false
 		},
-		"db:scripts": {
-			"cache": false,
-			"interactive": true
-		},
 		"test:unit": {
 			"cache": false
 		}

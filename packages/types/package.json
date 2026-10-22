@@ -11,9 +11,7 @@
 		"postinstall": "pnpm build"
 	},
 	"dependencies": {
-		"@repo/constants": "workspace:*",
-		"@repo/enums": "workspace:*",
-		"@repo/schemas": "workspace:*",
-		"@repo/db": "workspace:*"
+		"@repo/db": "workspace:*",
+		"@repo/schemas": "workspace:*"
 	}
 }

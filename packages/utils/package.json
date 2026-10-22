@@ -10,9 +10,6 @@
 		"postinstall": "pnpm build"
 	},
 	"dependencies": {
-		"@repo/constants": "workspace:*",
-		"@repo/enums": "workspace:*",
-		"@repo/types": "workspace:*",
-		"@repo/db": "workspace:*"
+		"@repo/constants": "workspace:*"
 	}
 }

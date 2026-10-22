@@ -1,15 +1,13 @@
 services:
-  sauero-app:
+  starter-app:
     image: ${APP_IMAGE}
-    container_name: sauero-app
+    container_name: starter-app
     ports:
       - "3000:3000"
       - "3001:3001"
-      - "3002:3002"
     env_file:
       - apps/web/.env
       - apps/server/.env
-      - apps/mcp/.env
     restart: on-failure:5
     networks:
       - app_network

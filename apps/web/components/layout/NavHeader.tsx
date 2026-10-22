@@ -12,13 +12,13 @@ import Link from 'next/link';
  * own subtitle and home link so both shells carry the same logo and type.
  */
 export function NavHeader({
-	subtitle = 'Unified business view',
+	subtitle = 'Next.js + NestJS',
 	href = '/',
 }: {
 	subtitle?: string;
 	href?: string;
 }) {
-	const appName = 'Sauerobase';
+	const appName = 'Starter';
 
 	return (
 		<SidebarMenu>

@@ -29,7 +29,6 @@ jest.mock('@prisma/adapter-pg', () => {
 		PrismaPg: jest.fn().mockImplementation((config: any) => {
 			return {
 				connectionString: config.connectionString,
-				ssl: config.ssl,
 				provider: 'postgres',
 				adapterName: 'pg',
 			};
@@ -81,9 +80,6 @@ describe('PrismaService', () => {
 			// Check that PrismaPg was called with correct config
 			expect(PrismaPg).toHaveBeenCalledWith({
 				connectionString: 'postgresql://test:test@localhost:5432/test',
-				ssl: {
-					rejectUnauthorized: false,
-				},
 			});
 
 			// Check that PrismaClient constructor was called with correct config
@@ -104,9 +100,6 @@ describe('PrismaService', () => {
 			// Should still call PrismaPg but with undefined connectionString
 			expect(PrismaPg).toHaveBeenCalledWith({
 				connectionString: undefined,
-				ssl: {
-					rejectUnauthorized: false,
-				},
 			});
 
 			// Restore DATABASE_URL

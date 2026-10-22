@@ -9,8 +9,5 @@
 		"dev": "rm -rf dist && tsc --build --force ./tsconfig.json --watch",
 		"build:watch": "tsc --build --force ./tsconfig.json --watch",
 		"postinstall": "pnpm build"
-	},
-	"dependencies": {
-		"@repo/enums": "workspace:*"
 	}
 }

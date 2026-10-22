@@ -10,14 +10,6 @@ export const useRedirect = () => {
 		router.push(path);
 	};
 
-	const redirectCustomers = () => {
-		router.push('/customers');
-	};
-
-	const redirectCustomer = (id: string) => {
-		router.push(`/customers/${id}`);
-	};
-
 	const handleLogout = useCallback(async (error?: string) => {
 		await signOut();
 		if (error) {
@@ -33,8 +25,6 @@ export const useRedirect = () => {
 
 	return {
 		redirect,
-		redirectCustomer,
-		redirectCustomers,
 		handleLogout,
 		goBack,
 	};

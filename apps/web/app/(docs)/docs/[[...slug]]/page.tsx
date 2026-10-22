@@ -39,7 +39,7 @@ export async function generateMetadata({
 	const { slug = [] } = await params;
 	const doc = getDocPage(slug);
 
-	if (!doc) return { title: slug.length ? 'Docs' : 'Help Center · Sauero' };
+	if (!doc) return { title: slug.length ? 'Docs' : 'Help Center' };
 
 	return { title: `${doc.title} · Docs`, description: doc.description };
 }
@@ -84,8 +84,8 @@ const DocPage = async ({ params }: DocPageProps) => {
 							)}
 							{!doc && (
 								<p className='mt-1 text-base leading-7 text-muted-foreground'>
-									Training videos, how Sauero works, what it can and cannot do,
-									and the processes it runs.
+									Guides, architecture notes and training videos for this
+									project.
 								</p>
 							)}
 						</header>

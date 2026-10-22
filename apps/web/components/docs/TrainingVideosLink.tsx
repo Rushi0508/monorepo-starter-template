@@ -15,7 +15,7 @@ export function TrainingVideosLink() {
 				<span className='flex-1'>
 					<span className='block font-medium'>Training videos</span>
 					<span className='block text-muted-foreground'>
-						Step-by-step walkthroughs of how to use Sauero
+						Step-by-step walkthroughs of how to use the app
 					</span>
 				</span>
 				<ChevronRight className='size-4 text-muted-foreground' />

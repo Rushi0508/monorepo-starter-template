@@ -4,7 +4,7 @@
 	"version": "0.1.0",
 	"private": true,
 	"scripts": {
-		"dev": "heizen-secrets run -- next dev --turbopack --port 3000",
+		"dev": "next dev --turbopack --port 3000",
 		"build": "next build",
 		"start": "next start --port 3000",
 		"lint": "biome check --fix",
@@ -13,9 +13,6 @@
 		"find-deadcode": "ts-prune"
 	},
 	"dependencies": {
-		"@dnd-kit/core": "^6.3.1",
-		"@dnd-kit/sortable": "^10.0.0",
-		"@dnd-kit/utilities": "^3.2.2",
 		"@hookform/resolvers": "^5.4.0",
 		"@react-pdf/renderer": "^4.9.0",
 		"@repo/constants": "workspace:*",
@@ -27,18 +24,12 @@
 		"@repo/utils": "workspace:*",
 		"@tanstack/markdown": "^0.0.13",
 		"@tanstack/react-table": "^8.21.3",
-		"@types/papaparse": "^5.5.2",
-		"ag-grid-community": "^36.1.0",
-		"ag-grid-enterprise": "^36.1.0",
-		"ag-grid-react": "^36.1.0",
 		"dejavu-fonts-ttf": "^2.37.3",
 		"image-size": "^2.0.4",
 		"markdown-to-doc": "1.1.3",
 		"next": "^16.3.6",
-		"papaparse": "^5.5.3",
 		"react": "^19.1.0",
-		"react-dom": "^19.1.0",
-		"xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
+		"react-dom": "^19.1.0"
 	},
 	"devDependencies": {
 		"@repo/typescript-config": "workspace:*",

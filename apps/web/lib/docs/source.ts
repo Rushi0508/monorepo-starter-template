@@ -33,7 +33,7 @@ export { DOCS_BASE_PATH, prettify } from '@repo/docs';
  *
  * `docs/` lives at the repo root, outside apps/web; the root turbo.json lists it
  * under globalDependencies so editing a doc busts the build cache. Finding and
- * naming the files lives in @repo/docs, shared with the MCP server.
+ * naming the files lives in @repo/docs.
  */
 
 /** Markdown extensions shared by the parser and the renderer — they must match. */

@@ -70,7 +70,7 @@ export function TrainingVideos() {
 						Training videos
 					</h1>
 					<p className='mt-1 text-base leading-7 text-muted-foreground'>
-						Short walkthroughs of how to use Sauero. Anyone on the team can add
+						Short walkthroughs of how to use the app. Anyone on the team can add
 						one.
 					</p>
 				</div>

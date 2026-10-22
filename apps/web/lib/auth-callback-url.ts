@@ -35,26 +35,3 @@ export function resolveAuthCallbackUrl(raw: string | null | undefined): string {
 export function isAbsoluteUrl(url: string): boolean {
 	return url.startsWith('http://') || url.startsWith('https://');
 }
-
-export function resolveOAuthContinueUrl(
-	searchParams: URLSearchParams
-): string | null {
-	if (!searchParams.get('client_id') || !searchParams.get('response_type')) {
-		return null;
-	}
-
-	const authBase = envConfig.betterAuthUrl.replace(/\/$/, '');
-	if (!authBase) {
-		return null;
-	}
-
-	return `${authBase}/api/auth/mcp/authorize?${searchParams.toString()}`;
-}
-
-export function toAbsoluteAuthCallbackUrl(callbackUrl: string): string {
-	if (isAbsoluteUrl(callbackUrl)) {
-		return callbackUrl;
-	}
-	const path = callbackUrl.startsWith('/') ? callbackUrl : `/${callbackUrl}`;
-	return `${envConfig.appUrl.replace(/\/$/, '')}${path}`;
-}

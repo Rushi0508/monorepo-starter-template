@@ -1,7 +1,7 @@
 import { config } from 'dotenv';
 import { defineConfig } from 'prisma/config';
 
-config();
+config({ path: '../../apps/server/.env', quiet: true });
 
 export default defineConfig({
 	datasource: {

@@ -4,14 +4,11 @@ import { emailOtpTemplate, sendMail } from '@repo/mail';
 import { APIError, betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { createAuthMiddleware } from 'better-auth/api';
-import { bearer, emailOTP, mcp } from 'better-auth/plugins';
+import { bearer, emailOTP } from 'better-auth/plugins';
 import { config } from './env-config';
 
 const adapter = new PrismaPg({
 	connectionString: config.urls.db,
-	ssl: {
-		rejectUnauthorized: false,
-	},
 });
 
 const prismaClient = new PrismaClient({
@@ -49,18 +46,6 @@ export const auth = betterAuth({
 			secure: true,
 		},
 	},
-	socialProviders: {
-		google: {
-			clientId: config.google.clientId,
-			clientSecret: config.google.clientSecret,
-			prompt: 'select_account',
-			mapProfileToUser: (profile) => ({
-				name: profile.name,
-				image: profile.picture,
-				emailVerified: profile.email_verified ?? false,
-			}),
-		},
-	},
 	plugins: [
 		bearer(),
 		emailOTP({
@@ -76,24 +61,13 @@ export const auth = betterAuth({
 					if (isProduction) {
 						sendMail(config.mail, {
 							to: email,
-							subject: 'Sauero - One-Time Password (OTP)',
+							subject: 'Starter - One-Time Password (OTP)',
 							html: emailOtpTemplate({ otp }),
 						});
 					} else {
 						console.log(`OTP: ${otp} for email: ${email}`);
 					}
 				}
-			},
-		}),
-		mcp({
-			loginPage: `${config.urls.frontend}/login`,
-			resource: config.mcp.publicUrl || undefined,
-			oidcConfig: {
-				loginPage: `${config.urls.frontend}/login`,
-				consentPage: `${config.urls.frontend}/consent`,
-				allowDynamicClientRegistration: true,
-				accessTokenExpiresIn: 60 * 60,
-				refreshTokenExpiresIn: 30 * DAY_SECONDS,
 			},
 		}),
 	],
@@ -147,9 +121,7 @@ export const auth = betterAuth({
 			}
 		}),
 	},
-	// MCPOptions from better-auth/plugins/mcp is not exported; cast so declaration
-	// emit (declaration: true) does not fail with TS4023.
-}) as unknown as ReturnType<typeof betterAuth>;
+});
 
 export type AuthSession = typeof auth.$Infer.Session.session;
 export type AuthUser = typeof auth.$Infer.Session.user;

@@ -8,7 +8,7 @@ import './guide.css';
  * Docs shell. The docs get their own sidebar — the doc tree, not the app nav —
  * so they read as a guide rather than another screen of the product.
  *
- * Still behind AuthProvider: the docs describe how the business runs, which is
+ * Still behind AuthProvider: the docs describe internal details, which are
  * not public. AuthProvider is a client boundary, but the tree below it is
  * server-rendered and passed through as children, so the pages stay static.
  *
