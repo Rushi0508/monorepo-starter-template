@@ -1,82 +1,132 @@
 import { deepTrim } from '@repo/utils';
-import type { AxiosRequestConfig } from 'axios';
+import type { AxiosRequestConfig, AxiosResponse } from 'axios';
 import axios, { isAxiosError } from 'axios';
 import { envConfig } from '@/env-config';
-
-const client = axios.create({
-	baseURL: envConfig.apiUrl,
-	withCredentials: true,
-	paramsSerializer: {
-		serialize: (params: Record<string, unknown>) => {
-			const searchParams = new URLSearchParams();
-			for (const [key, value] of Object.entries(params)) {
-				if (value === undefined || value === null || value === '') continue;
-				const values = Array.isArray(value) ? value : [value];
-				for (const item of values) searchParams.append(key, String(item));
-			}
-			return searchParams.toString();
-		},
-	},
-});
-
 export class ApiClient {
+	private static getTimezoneHeader(): Record<string, string> {
+		if (typeof globalThis.window === 'undefined') return {};
+
+		const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+		return timeZone ? { 'x-timezone': timeZone } : {};
+	}
+
 	private static async getServerSideHeaders(): Promise<Record<string, string>> {
 		if (typeof globalThis.window !== 'undefined') {
 			return {};
 		}
 
 		try {
-			const { headers } = await import('next/headers');
-			const cookie = (await headers()).get('cookie');
-			return cookie ? { cookie } : {};
+			const { cookies, headers } = await import('next/headers');
+			const cookieStore = await cookies();
+			const headerStore = await headers();
+
+			const cookieHeader = cookieStore
+				.getAll()
+				.map((cookie: { name: string; value: string }) => {
+					return `${cookie.name}=${cookie.value}`;
+				})
+				.join('; ');
+
+			const serverHeaders: Record<string, string> = Object.fromEntries(
+				headerStore.entries()
+			);
+
+			if (cookieHeader) {
+				serverHeaders.cookie = cookieHeader;
+			}
+
+			return serverHeaders;
 		} catch {
 			return {};
 		}
 	}
 
 	static async request<T>(config: AxiosRequestConfig): Promise<T> {
-		const isFormData = config.data instanceof FormData;
-
 		try {
-			const response = await client.request<T>({
-				...config,
-				data: config.data && !isFormData ? deepTrim(config.data) : config.data,
-				params: config.params ? deepTrim(config.params) : undefined,
+			const isFormData = config.data instanceof FormData;
+
+			if (config.data && !isFormData) {
+				config.data = deepTrim(config.data);
+			}
+			if (config.params) {
+				config.params = deepTrim(config.params);
+			}
+
+			const serverHeaders = await ApiClient.getServerSideHeaders();
+
+			const client = axios.create({
+				baseURL: envConfig.apiUrl,
+				withCredentials: true,
 				headers: {
-					...(await ApiClient.getServerSideHeaders()),
-					...config.headers,
+					...serverHeaders,
+					...ApiClient.getTimezoneHeader(),
+					...(config.data && !isFormData
+						? { 'Content-Type': 'application/json' }
+						: {}),
+				},
+				paramsSerializer: {
+					serialize: (params) => {
+						const searchParams = new URLSearchParams();
+						Object.entries(params).forEach(([key, value]) => {
+							if (value === undefined || value === null) return;
+							if (Array.isArray(value)) {
+								value.forEach((item) => {
+									searchParams.append(key, String(item));
+								});
+							} else {
+								searchParams.append(key, String(value));
+							}
+						});
+						return searchParams.toString();
+					},
 				},
 			});
+			const response: AxiosResponse<T> = await client.request(config);
 			return response.data;
 		} catch (err) {
-			if (isAxiosError<{ message?: string | string[] }>(err)) {
-				const message = err.response?.data?.message;
-				throw new Error(
-					(Array.isArray(message) ? message[0] : message) ||
-						'Something went wrong'
-				);
+			if (isAxiosError(err)) {
+				throw new Error(err.response?.data.message || 'Something went wrong');
 			}
-			throw err instanceof Error ? err : new Error('Something went wrong');
+			console.log(err);
+			throw new Error('Something went wrong');
 		}
 	}
 
-	static get<T>(url: string, params?: object): Promise<T> {
+	static async get<T>(
+		url: string,
+		params?: Record<string, unknown>
+	): Promise<T> {
 		return ApiClient.request<T>({ method: 'GET', url, params });
 	}
 
-	static post<T, D = unknown>(url: string, data?: D): Promise<T> {
+	static async getBlob(
+		url: string,
+		params?: Record<string, unknown>
+	): Promise<Blob> {
+		return ApiClient.request<Blob>({
+			method: 'GET',
+			url,
+			params,
+			responseType: 'blob',
+		});
+	}
+
+	static async post<T, D = unknown>(url: string, data?: D): Promise<T> {
 		return ApiClient.request<T>({ method: 'POST', url, data });
 	}
 
-	static put<T, D = unknown>(url: string, data?: D): Promise<T> {
+	static async put<T, D = unknown>(url: string, data?: D): Promise<T> {
 		return ApiClient.request<T>({ method: 'PUT', url, data });
 	}
 
-	static patch<T, D = unknown>(url: string, data?: D): Promise<T> {
+	static async patch<T, D = unknown>(url: string, data?: D): Promise<T> {
 		return ApiClient.request<T>({ method: 'PATCH', url, data });
 	}
 
-	static delete<T>(url: string, params?: object): Promise<T> {
+	static async delete<T>(
+		url: string,
+		params?: Record<string, unknown>
+	): Promise<T> {
 		return ApiClient.request<T>({ method: 'DELETE', url, params });
 	}
 }

@@ -1,13 +1,12 @@
 {
 	"extends": "@repo/typescript-config/react-library.json",
 	"compilerOptions": {
-		"module": "ESNext",
-		"moduleResolution": "Bundler",
-		"noEmit": true,
+		"resolveJsonModule": true,
+		"experimentalDecorators": true,
 		"paths": {
 			"@repo/ui/*": ["./src/*"]
 		}
 	},
 	"include": ["src"],
-	"exclude": ["node_modules", "dist"]
+	"exclude": ["dist", "build", "**/node_modules/**"]
 }

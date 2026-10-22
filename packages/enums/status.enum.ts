@@ -1,0 +1,100 @@
+export enum PipelineStatusEnum {
+	RUNNING = 'RUNNING',
+	SUCCESS = 'SUCCESS',
+	FAILED = 'FAILED',
+	PAUSED = 'PAUSED',
+}
+
+export enum PaymentStatusEnum {
+	PENDING = 'PENDING',
+	PAID = 'PAID',
+	PARTIALLY_REFUNDED = 'PARTIALLY_REFUNDED',
+	REFUNDED = 'REFUNDED',
+	PARTIALLY_PAID = 'PARTIALLY_PAID',
+	AUTHORIZED = 'AUTHORIZED',
+	VOIDED = 'VOIDED',
+}
+
+export enum FulfillmentStatusEnum {
+	UNFULFILLED = 'UNFULFILLED',
+	PARTIALLY_FULFILLED = 'PARTIALLY_FULFILLED',
+	PENDING_FULFILLMENT = 'PENDING_FULFILLMENT',
+	FULFILLED = 'FULFILLED',
+	RESTOCKED = 'RESTOCKED',
+	IN_PROGRESS = 'IN_PROGRESS',
+	ON_HOLD = 'ON_HOLD',
+	OPEN = 'OPEN',
+	SCHEDULED = 'SCHEDULED',
+}
+
+export enum ChannelEnum {
+	DTC = 'DTC',
+	DTC_POS = 'DTC-POS',
+	AMAZON = 'AMAZON',
+	WS_ECOM = 'WS-ECOM',
+	WS_DSD = 'WS-DSD',
+	WS_CHAINS = 'WS-CHAINS',
+	ALTERNATIVE = 'ALTERNATIVE',
+}
+
+export enum KitOrderStatusEnum {
+	OPEN = 'Open',
+	COMPLETED = 'Completed',
+	CANCELED = 'Canceled',
+}
+
+export enum ASNStatusEnum {
+	IMPORTED = 'Imported',
+	RECEIVING = 'Receiving',
+	RECEIVED = 'Received',
+	UNPACKING = 'Unpacking',
+	COMPLETED = 'Completed',
+	NOT_COMPLETED = 'Not Completed',
+}
+
+export enum BlueboxWorkflowStatusEnum {
+	OPEN = 'Open',
+	RECEIVED = 'Received',
+	HOLD = 'Hold',
+	NEEDS_ATTENTION = 'NeedsAttention',
+	PICKING = 'Picking',
+	PICKED = 'Picked',
+	PACKING = 'Packing',
+	PACKED = 'Packed',
+	SHIPPED = 'Shipped',
+	DELIVERED = 'Delivered',
+	CANCELLED = 'Cancelled',
+}
+
+export enum InboundEmailStatusEnum {
+	PENDING = 'PENDING',
+	PROCESSING = 'PROCESSING',
+	PROCESSED = 'PROCESSED',
+	FAILED = 'FAILED',
+}
+
+export enum InboundEmailTypeEnum {
+	POD = 'POD',
+	PICKUP = 'PICKUP',
+}
+
+export enum ShipmentStatusEnum {
+	ATTEMPTED_DELIVERY = 'ATTEMPTED_DELIVERY',
+	CANCELED = 'CANCELED',
+	CARRIER_PICKED_UP = 'CARRIER_PICKED_UP',
+	CONFIRMED = 'CONFIRMED',
+	DELAYED = 'DELAYED',
+	DELIVERED = 'DELIVERED',
+	FAILURE = 'FAILURE',
+	FULFILLED = 'FULFILLED',
+	IN_TRANSIT = 'IN_TRANSIT',
+	LABEL_PRINTED = 'LABEL_PRINTED',
+	LABEL_PURCHASED = 'LABEL_PURCHASED',
+	LABEL_VOIDED = 'LABEL_VOIDED',
+	MARKED_AS_FULFILLED = 'MARKED_AS_FULFILLED',
+	NOT_DELIVERED = 'NOT_DELIVERED',
+	OUT_FOR_DELIVERY = 'OUT_FOR_DELIVERY',
+	PICKED_UP = 'PICKED_UP',
+	READY_FOR_PICKUP = 'READY_FOR_PICKUP',
+	SUBMITTED = 'SUBMITTED',
+}

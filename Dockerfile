@@ -1,4 +1,4 @@
-FROM node:24-slim AS base
+FROM node:24.21.0-slim AS base
 
 RUN apt-get update \
 	&& apt-get install -y --no-install-recommends openssl ca-certificates \
@@ -10,10 +10,10 @@ WORKDIR /app
 
 COPY . .
 
-RUN pnpm install --frozen-lockfile
+RUN pnpm install
+
+RUN pnpm db:generate
 
 RUN pnpm build
-
-EXPOSE 3000 3001
 
 CMD ["sh", "-c", "pnpm db:deploy && pnpm start"]

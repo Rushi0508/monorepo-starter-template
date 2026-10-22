@@ -1,0 +1,129 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main, master]
+
+env:
+  AWS_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  DEFAULT_SSH_PRIVATE_KEY: ${{ secrets.DEFAULT_SSH_PRIVATE_KEY }}
+  HEIZEN_STUDIO_API_KEY: ${{ secrets.HEIZEN_STUDIO_API_KEY }}
+  ECR_URI: ${{ vars.ECR_REPO }}
+  IMAGE_TAG: sauero-${{ github.sha }}
+  HEIZEN_PROJECT_ID: ${{ vars.HEIZEN_PROJECT_ID }}
+  HEIZEN_WEB_ENVIRONMENT: sauero-web-prod
+  HEIZEN_SERVER_ENVIRONMENT: sauero-server-prod
+  HEIZEN_MCP_ENVIRONMENT: sauero-mcp-prod
+  INSTANCE_NAME: sauero
+  SSH_USER: ubuntu
+
+jobs:
+  DEPLOYING-WEBSITE:
+    runs-on:
+      - codebuild-org-gha-runner-${{ github.run_id }}-${{ github.run_attempt }}
+      - image:ubuntu-7.0
+      - build
+
+    if: contains(github.event.head_commit.message, 'DEPLOY')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Configure AWS CLI
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to ECR
+        run: |
+          aws ecr get-login-password --region ${{ env.AWS_REGION }} \
+          | docker login \
+          --username AWS \
+          --password-stdin $(echo ${{ env.ECR_URI }} | cut -d'/' -f1)
+
+      - name: Fetch web secrets from Heizen
+        uses: heizen-labs/load-secrets@v1
+        with:
+          project-id: ${{ env.HEIZEN_PROJECT_ID }}
+          environment: ${{ env.HEIZEN_WEB_ENVIRONMENT }}
+          output-path: ./apps/web/.env
+          api-key: ${{ env.HEIZEN_STUDIO_API_KEY }}
+
+      - name: Fetch server secrets from Heizen
+        uses: heizen-labs/load-secrets@v1
+        with:
+          project-id: ${{ env.HEIZEN_PROJECT_ID }}
+          environment: ${{ env.HEIZEN_SERVER_ENVIRONMENT }}
+          output-path: ./apps/server/.env
+          api-key: ${{ env.HEIZEN_STUDIO_API_KEY }}
+
+      - name: Fetch mcp secrets from Heizen
+        uses: heizen-labs/load-secrets@v1
+        with:
+          project-id: ${{ env.HEIZEN_PROJECT_ID }}
+          environment: ${{ env.HEIZEN_MCP_ENVIRONMENT }}
+          output-path: ./apps/mcp/.env
+          api-key: ${{ env.HEIZEN_STUDIO_API_KEY }}
+
+      - name: Build & Push Image
+        run: |
+          docker build -t ${{ env.IMAGE_TAG }} .
+          docker tag ${{ env.IMAGE_TAG }} ${{ env.ECR_URI }}:latest
+          docker tag ${{ env.IMAGE_TAG }} ${{ env.ECR_URI }}:${{ env.IMAGE_TAG }}
+          docker push ${{ env.ECR_URI }}:latest
+          docker push ${{ env.ECR_URI }}:${{ env.IMAGE_TAG }}
+
+      - name: Get Instance Public IP
+        id: get_ip
+        run: |
+          INSTANCE_IP=$(aws lightsail get-instance \
+            --instance-name ${{ env.INSTANCE_NAME }} \
+            --query 'instance.publicIpAddress' \
+            --output text)
+
+          echo "INSTANCE_IP=${INSTANCE_IP}" >> $GITHUB_ENV
+
+      - name: Sync .env files to Lightsail
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ env.DEFAULT_SSH_PRIVATE_KEY }}" > ~/.ssh/github
+          chmod 600 ~/.ssh/github
+
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/github \
+            ${{ env.SSH_USER }}@${{ env.INSTANCE_IP }} \
+            "sudo mkdir -p /home/${{ env.SSH_USER }}/sauero/apps/web /home/${{ env.SSH_USER }}/sauero/apps/server /home/${{ env.SSH_USER }}/sauero/apps/mcp && sudo chown -R ${{ env.SSH_USER }}:${{ env.SSH_USER }} /home/${{ env.SSH_USER }}/sauero/apps"
+
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/github \
+            ./apps/web/.env \
+            ${{ env.SSH_USER }}@${{ env.INSTANCE_IP }}:/home/${{ env.SSH_USER }}/sauero/apps/web/.env
+
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/github \
+            ./apps/server/.env \
+            ${{ env.SSH_USER }}@${{ env.INSTANCE_IP }}:/home/${{ env.SSH_USER }}/sauero/apps/server/.env
+
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/github \
+            ./apps/mcp/.env \
+            ${{ env.SSH_USER }}@${{ env.INSTANCE_IP }}:/home/${{ env.SSH_USER }}/sauero/apps/mcp/.env
+
+      - name: SSH into Lightsail Instance and Deploy
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ env.DEFAULT_SSH_PRIVATE_KEY }}" > ~/.ssh/github
+          chmod 600 ~/.ssh/github
+
+          echo "INSTANCE_IP: $INSTANCE_IP"
+
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/github \
+            ${{ env.SSH_USER }}@${{ env.INSTANCE_IP }} \
+            "sudo APP_IMAGE=\"${{ env.ECR_URI }}:latest\" \
+                  ECR_URI=\"${{ env.ECR_URI }}\" \
+                  AWS_REGION=\"${{ env.AWS_REGION }}\" \
+                  AWS_ACCESS_KEY_ID=\"${{ env.AWS_ACCESS_KEY_ID }}\" \
+                  AWS_SECRET_ACCESS_KEY=\"${{ env.AWS_SECRET_ACCESS_KEY }}\" \
+                  bash -s" \
+            < ./deploy.sh

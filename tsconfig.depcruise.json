@@ -1,15 +1,23 @@
 {
 	"compilerOptions": {
+		"baseUrl": ".",
 		"jsx": "preserve",
 		"paths": {
-			"@/*": ["./apps/web/*"],
-			"src/*": ["./apps/server/src/*"],
-			"test/*": ["./apps/server/test/*"],
-			"@repo/ui/*": ["./packages/ui/src/*"],
-			"@repo/db": ["./packages/db/generated/prisma/index.js"],
-			"@repo/schemas": ["./packages/schemas/index.ts"],
-			"@repo/types": ["./packages/types/index.ts"],
-			"@repo/utils": ["./packages/utils/index.ts"]
+			"@/*": ["apps/web/*"],
+			"src/*": ["apps/server/src/*"],
+			"test/*": ["apps/server/test/*"],
+			"@repo/ui/*": ["packages/ui/src/*"],
+			"@repo/db": ["packages/db/generated/prisma/index.js"],
+			"@repo/constants": ["packages/constants/index.ts"],
+			"@repo/constants/*": ["packages/constants/*"],
+			"@repo/docs": ["packages/docs/index.ts"],
+			"@repo/enums": ["packages/enums/index.ts"],
+			"@repo/enums/*": ["packages/enums/*"],
+			"@repo/mail": ["packages/mail/index.ts"],
+			"@repo/schemas": ["packages/schemas/index.ts"],
+			"@repo/types": ["packages/types/index.ts"],
+			"@repo/types/*": ["packages/types/*"],
+			"@repo/utils": ["packages/utils/index.ts"]
 		}
 	}
 }

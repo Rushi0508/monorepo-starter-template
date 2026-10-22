@@ -1,39 +1,29 @@
 import type { Metadata } from 'next';
-import { Google_Sans, Source_Serif_4 } from 'next/font/google';
 import { Suspense } from 'react';
-import '@repo/ui/globals.css';
-import { cn } from '@repo/ui/lib/utils';
+import Providers from '@/app/providers';
+import { googleSans, sourceSerif } from '@/lib/fonts';
 import GlobalLoading from './loading';
-import Providers from './providers';
-
-const fontSans = Google_Sans({ subsets: ['latin'], variable: '--font-sans' });
-const fontHeading = Source_Serif_4({
-	subsets: ['latin'],
-	variable: '--font-heading-family',
-});
+import '@repo/ui/globals.css';
+import { ReactQueryClientProvider } from '@/lib/tanstack-query';
 
 export const metadata: Metadata = {
-	title: 'Starter',
-	description: 'Next.js + NestJS monorepo starter',
+	title: 'Sauero',
+	description: 'Sauero',
 };
 
 export default function RootLayout({
 	children,
-}: Readonly<{ children: React.ReactNode }>) {
+}: Readonly<{
+	children: React.ReactNode;
+}>) {
 	return (
-		<html
-			lang='en'
-			suppressHydrationWarning
-			className={cn(
-				'antialiased font-sans',
-				fontSans.variable,
-				fontHeading.variable
-			)}
-		>
-			<body>
-				<Providers>
-					<Suspense fallback={<GlobalLoading />}>{children}</Suspense>
-				</Providers>
+		<html lang='en' className={sourceSerif.variable} suppressHydrationWarning>
+			<body className={`${googleSans.className} antialiased overflow-hidden`}>
+				<ReactQueryClientProvider>
+					<Suspense fallback={<GlobalLoading />}>
+						<Providers>{children}</Providers>
+					</Suspense>
+				</ReactQueryClientProvider>
 			</body>
 		</html>
 	);

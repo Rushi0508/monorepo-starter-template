@@ -1,17 +1,18 @@
 {
 	"name": "@repo/utils",
 	"version": "0.0.0",
-	"private": true,
 	"main": "./dist/index.js",
 	"types": "./dist/index.d.ts",
+	"private": true,
 	"scripts": {
 		"build": "rm -rf dist && tsc --build --force tsconfig.json",
-		"dev": "tsc --build --watch --preserveWatchOutput tsconfig.json",
-		"typecheck": "tsc --noEmit",
+		"dev": "rm -rf dist && tsc --build --force ./tsconfig.json --watch",
 		"postinstall": "pnpm build"
 	},
-	"dependencies": {},
-	"devDependencies": {
-		"@repo/typescript-config": "workspace:*"
+	"dependencies": {
+		"@repo/constants": "workspace:*",
+		"@repo/enums": "workspace:*",
+		"@repo/types": "workspace:*",
+		"@repo/db": "workspace:*"
 	}
 }

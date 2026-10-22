@@ -1,8 +1,7 @@
 'use client';
 
 import type { AuthContextType } from '@repo/types';
-import { useQuery } from '@tanstack/react-query';
-import { createContext, use, useEffect } from 'react';
+import { createContext, use, useCallback, useEffect, useState } from 'react';
 import GlobalLoading from '@/app/loading';
 import { useRedirect } from '@/hooks/useRedirect';
 import { useSession } from '@/lib/auth-client';
@@ -11,22 +10,31 @@ import { AuthService } from '@/services';
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-	const { data: session, isPending } = useSession();
+	const [user, setUser] = useState<AuthContextType | null>(null);
+	const { data, isPending } = useSession();
+	const [isLoading, setIsLoading] = useState(false);
 	const { handleLogout } = useRedirect();
-	const userId = session?.session.userId;
 
-	const { data: user, error } = useQuery({
-		queryKey: ['auth', 'me', userId],
-		queryFn: AuthService.me,
-		enabled: Boolean(userId),
-		retry: false,
-	});
+	const fetchUser = useCallback(async () => {
+		try {
+			setIsLoading(true);
+			const resp = await AuthService.me();
+			setUser(resp);
+		} catch (error) {
+			console.log((error as Error).message);
+			handleLogout(error instanceof Error ? error.message : undefined);
+		} finally {
+			setIsLoading(false);
+		}
+	}, [handleLogout]);
 
 	useEffect(() => {
-		if (error) handleLogout(error.message);
-	}, [error, handleLogout]);
+		if (data?.session.userId) {
+			fetchUser();
+		}
+	}, [data?.session.userId, fetchUser]);
 
-	if (isPending || !user) {
+	if (isPending || isLoading || !user) {
 		return <GlobalLoading />;
 	}
 

@@ -2,6 +2,8 @@
 	"$schema": "https://turbo.build/schema.json",
 	"ui": "tui",
 	"envMode": "loose",
+	"concurrency": "20",
+	"globalDependencies": ["docs/**", "skills/**"],
 	"tasks": {
 		"start": {
 			"dependsOn": ["^start"]
@@ -32,8 +34,11 @@
 			"cache": false
 		},
 		"db:studio": {
+			"cache": false
+		},
+		"db:scripts": {
 			"cache": false,
-			"persistent": true
+			"interactive": true
 		},
 		"test:unit": {
 			"cache": false

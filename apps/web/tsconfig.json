@@ -1,20 +1,21 @@
 {
 	"extends": "@repo/typescript-config/nextjs.json",
 	"compilerOptions": {
+		"experimentalDecorators": true,
 		"paths": {
 			"@/*": ["./*"],
-			"@repo/ui/*": ["../../packages/ui/src/*"]
+			"@repo/ui/*": ["../../packages/ui/src/*"],
+			"@repo/types/*": ["../../packages/types/*"],
+			"@repo/enums/*": ["../../packages/enums/*"],
+			"@repo/constants/*": ["../../packages/constants/*"]
 		},
-		"plugins": [{ "name": "next" }]
+		"plugins": [
+			{
+				"name": "next"
+			}
+		],
+		"strictNullChecks": true
 	},
-	"include": [
-		"next-env.d.ts",
-		"next.config.ts",
-		"**/*.ts",
-		"**/*.tsx",
-		"**/*.mts",
-		".next/types/**/*.ts",
-		".next/dev/types/**/*.ts"
-	],
-	"exclude": ["node_modules", ".next"]
+	"include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+	"exclude": ["**/node_modules/**", ".next"]
 }

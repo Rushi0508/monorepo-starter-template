@@ -1,0 +1,147 @@
+/* A SKU's six metric rows read as one block, so the boundary is drawn once. */
+.pg-sku-start .ag-cell {
+	border-top: 1px solid color-mix(in oklab, var(--foreground) 10%, transparent);
+}
+
+.pg-sku-label {
+	font-weight: 500;
+	white-space: normal;
+	line-height: 1.2;
+}
+
+.pg-metric {
+	color: color-mix(in oklab, var(--foreground) 55%, transparent);
+}
+
+.pg-metric-plan {
+	color: inherit;
+	font-weight: 500;
+}
+
+/* Typable cells look typable even before they are focused. */
+.pg-editable {
+	background-color: rgba(59, 130, 246, 0.04);
+}
+
+.pg-override {
+	font-weight: 600;
+}
+
+/* Flagged, not forbidden: far from the forecast but still allowed. */
+.pg-flagged {
+	background-color: rgba(245, 158, 11, 0.14);
+}
+
+/* The month in progress is not comparable to a closed one. */
+.pg-partial::after {
+	content: "*";
+	color: rgb(245, 158, 11);
+	margin-left: 2px;
+}
+
+.pg-muted {
+	color: color-mix(in oklab, var(--foreground) 50%, transparent);
+	font-style: italic;
+}
+
+.pg-total {
+	font-weight: 600;
+}
+
+/* The channel row carries the tint the header used to, so grouping reads
+   vertically rather than the header competing for attention. */
+.ag-row-group {
+	background-color: var(--muted);
+	font-weight: 600;
+}
+
+/* Hover paints the cells, which would otherwise punch white holes through the
+   group tint — most visibly in the pinned column, which is its own container. */
+.ag-row-group .ag-cell,
+.ag-row-group.ag-row-hover .ag-cell {
+	background-color: var(--muted);
+	border-top: 1px solid color-mix(in oklab, var(--foreground) 8%, transparent);
+}
+
+.ag-row-group.ag-row-hover::before,
+.ag-row-group .ag-cell::before {
+	background-color: transparent;
+}
+
+/* A group row is taller than the theme's row height, which the cells' own
+   line-height does not follow — so without this the content sits high and
+   leaves a gap underneath. */
+.ag-row-group .ag-cell {
+	display: flex;
+	align-items: center;
+}
+
+.ag-row-group .ag-cell.ag-right-aligned-cell {
+	justify-content: flex-end;
+}
+
+.pg-group-label .ag-cell-wrapper,
+.pg-group-label .ag-group-value {
+	display: flex;
+	align-items: center;
+	min-width: 0;
+}
+
+.pg-group-label .ag-group-value {
+	overflow: hidden;
+}
+
+/* A leaf in this column is a SKU, not a nested group, so it does not line up
+   under the chevron. AG Grid reserves that slot two ways: the chevron elements
+   themselves, and a leaf margin of one icon width that rowGroupIndentSize does
+   not reach. */
+.ag-row:not(.ag-row-group) .ag-cell[col-id="label"] .ag-group-expanded,
+.ag-row:not(.ag-row-group) .ag-cell[col-id="label"] .ag-group-contracted {
+	display: none;
+}
+
+.ag-cell[col-id="label"] .ag-row-group-leaf-indent {
+	margin-left: 0;
+	margin-right: 0;
+}
+
+/* A group row mixes two kinds of number: months that have shipped, and months
+   still being planned. Italic marks the forecast half. */
+.pg-group-actual {
+	font-variant-numeric: tabular-nums;
+}
+
+.pg-group-plan {
+	font-style: italic;
+	color: color-mix(in oklab, var(--foreground) 62%, transparent);
+	font-variant-numeric: tabular-nums;
+}
+
+/* The pinned P&L block sits apart from the rows it is derived from. */
+.pg-summary {
+	background-color: var(--background);
+}
+
+.pg-summary-strong {
+	font-weight: 600;
+	background-color: var(--secondary);
+}
+
+.pg-summary-label {
+	font-weight: 500;
+}
+
+/* Variance is the one signed metric: direction reads before the number does. */
+.pg-variance-up {
+	color: rgb(22, 163, 74);
+	font-weight: 500;
+}
+
+.pg-variance-down {
+	color: rgb(220, 38, 38);
+	font-weight: 500;
+}
+
+.pg-variance-flat {
+	color: color-mix(in oklab, var(--foreground) 35%, transparent);
+}

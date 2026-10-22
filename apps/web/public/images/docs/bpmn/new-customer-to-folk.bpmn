@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Defs_new-customer-to-folk" targetNamespace="https://app.drinksauero.com/docs" exporter="Sauero docs" exporterVersion="1.0">
+  <bpmn:collaboration id="Collab_new-customer-to-folk">
+    <bpmn:participant id="P_sd" name="SimplyDepo" />
+    <bpmn:participant id="P_zap" name="Zapier automation" processRef="Proc_zap" />
+    <bpmn:participant id="P_folk" name="Folk (CRM)" />
+    <bpmn:participant id="P_sauero" name="Sauero" processRef="Proc_sauero" />
+    <bpmn:messageFlow id="MF_0" name="Customer details" sourceRef="P_sd" targetRef="z_start" />
+    <bpmn:messageFlow id="MF_1" name="Search" sourceRef="z_search" targetRef="P_folk" />
+    <bpmn:messageFlow id="MF_2" name="Match or none" sourceRef="P_folk" targetRef="z_search" />
+    <bpmn:messageFlow id="MF_3" name="New company" sourceRef="z_create" targetRef="P_folk" />
+    <bpmn:messageFlow id="MF_4" name="New company notice" sourceRef="P_folk" targetRef="s_start" />
+    <bpmn:messageFlow id="MF_5" name="Order metrics" sourceRef="s_write" targetRef="P_folk" />
+  </bpmn:collaboration>
+  <bpmn:process id="Proc_zap" isExecutable="false">
+    <bpmn:startEvent id="z_start" name="Next check finds a new or changed customer"><bpmn:timerEventDefinition id="TED_z_start" /></bpmn:startEvent>
+    <bpmn:task id="z_read" name="Read name, phone, addresses, email and website"></bpmn:task>
+    <bpmn:sendTask id="z_search" name="Search Folk &quot;Customers - AZ&quot; for the same name"></bpmn:sendTask>
+    <bpmn:exclusiveGateway id="gw_found" name="Company found?"></bpmn:exclusiveGateway>
+    <bpmn:endEvent id="z_stop" name="Stop, nothing created"></bpmn:endEvent>
+    <bpmn:sendTask id="z_create" name="Create the company in &quot;Customers - AZ&quot;"></bpmn:sendTask>
+    <bpmn:endEvent id="z_end" name="Company created"></bpmn:endEvent>
+    <bpmn:sequenceFlow id="SF_0" name="" sourceRef="z_start" targetRef="z_read" />
+    <bpmn:sequenceFlow id="SF_1" name="" sourceRef="z_read" targetRef="z_search" />
+    <bpmn:sequenceFlow id="SF_2" name="" sourceRef="z_search" targetRef="gw_found" />
+    <bpmn:sequenceFlow id="SF_3" name="Yes" sourceRef="gw_found" targetRef="z_stop" />
+    <bpmn:sequenceFlow id="SF_4" name="No" sourceRef="gw_found" targetRef="z_create" />
+    <bpmn:sequenceFlow id="SF_5" name="" sourceRef="z_create" targetRef="z_end" />
+  </bpmn:process>
+  <bpmn:process id="Proc_sauero" isExecutable="false">
+    <bpmn:laneSet id="LS_P_sauero">
+      <bpmn:lane id="L_sys" name="Sauerobase">
+        <bpmn:flowNodeRef>s_start</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>gw_track</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>s_ign</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>s_add</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>gw_match</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>s_unmap</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>s_wait</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>s_pend</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>s_write</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>s_end</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="L_ops" name="Operations">
+        <bpmn:flowNodeRef>o_review</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="s_start" name="New company in a Folk group"><bpmn:messageEventDefinition id="MED_s_start" /></bpmn:startEvent>
+    <bpmn:exclusiveGateway id="gw_track" name="Group tracked in Configuration?"></bpmn:exclusiveGateway>
+    <bpmn:endEvent id="s_ign" name="Ignored"></bpmn:endEvent>
+    <bpmn:task id="s_add" name="Add to Folk mapping, look for a matching store customer"></bpmn:task>
+    <bpmn:exclusiveGateway id="gw_match" name="Good enough match?"></bpmn:exclusiveGateway>
+    <bpmn:task id="s_unmap" name="Shown as Unmapped"></bpmn:task>
+    <bpmn:intermediateCatchEvent id="s_wait" name="Scheduled Folk reconcile, or &quot;Seed from Folk&quot; pressed"><bpmn:timerEventDefinition id="TED_s_wait" /></bpmn:intermediateCatchEvent>
+    <bpmn:task id="s_pend" name="Shown as Pending review"></bpmn:task>
+    <bpmn:userTask id="o_review" name="Confirm the match, or link a customer by hand"></bpmn:userTask>
+    <bpmn:serviceTask id="s_write" name="Write ordering figures to the Folk company"></bpmn:serviceTask>
+    <bpmn:endEvent id="s_end" name="Company linked and kept up to date"></bpmn:endEvent>
+    <bpmn:sequenceFlow id="SF_6" name="" sourceRef="s_start" targetRef="gw_track" />
+    <bpmn:sequenceFlow id="SF_7" name="No" sourceRef="gw_track" targetRef="s_ign" />
+    <bpmn:sequenceFlow id="SF_8" name="Yes" sourceRef="gw_track" targetRef="s_add" />
+    <bpmn:sequenceFlow id="SF_9" name="" sourceRef="s_add" targetRef="gw_match" />
+    <bpmn:sequenceFlow id="SF_10" name="Yes" sourceRef="gw_match" targetRef="s_pend" />
+    <bpmn:sequenceFlow id="SF_11" name="No" sourceRef="gw_match" targetRef="s_unmap" />
+    <bpmn:sequenceFlow id="SF_12" name="" sourceRef="s_unmap" targetRef="s_wait" />
+    <bpmn:sequenceFlow id="SF_13" name="Search again" sourceRef="s_wait" targetRef="s_add" />
+    <bpmn:sequenceFlow id="SF_14" name="" sourceRef="s_pend" targetRef="o_review" />
+    <bpmn:sequenceFlow id="SF_15" name="" sourceRef="o_review" targetRef="s_write" />
+    <bpmn:sequenceFlow id="SF_16" name="" sourceRef="s_write" targetRef="s_end" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="Diagram_new-customer-to-folk">
+    <bpmndi:BPMNPlane id="Plane_new-customer-to-folk" bpmnElement="Collab_new-customer-to-folk">
+      <bpmndi:BPMNShape id="P_sd_di" bpmnElement="P_sd" isHorizontal="true"><dc:Bounds x="40" y="40" width="2220" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="P_zap_di" bpmnElement="P_zap" isHorizontal="true"><dc:Bounds x="40" y="150" width="2220" height="180" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="P_folk_di" bpmnElement="P_folk" isHorizontal="true"><dc:Bounds x="40" y="370" width="2220" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="P_sauero_di" bpmnElement="P_sauero" isHorizontal="true"><dc:Bounds x="40" y="480" width="2220" height="490" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="L_sys_di" bpmnElement="L_sys" isHorizontal="true"><dc:Bounds x="70" y="480" width="2190" height="350" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="L_ops_di" bpmnElement="L_ops" isHorizontal="true"><dc:Bounds x="70" y="830" width="2190" height="140" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="z_start_di" bpmnElement="z_start"><dc:Bounds x="182" y="232" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="92" y="272" width="100" height="30" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="z_read_di" bpmnElement="z_read"><dc:Bounds x="300" y="212" width="120" height="76" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="z_search_di" bpmnElement="z_search"><dc:Bounds x="460" y="212" width="120" height="76" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="gw_found_di" bpmnElement="gw_found" isMarkerVisible="true"><dc:Bounds x="655" y="225" width="50" height="50" /><bpmndi:BPMNLabel><dc:Bounds x="565" y="279" width="100" height="30" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="z_stop_di" bpmnElement="z_stop"><dc:Bounds x="662" y="164" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="704" y="167" width="100" height="30" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="z_create_di" bpmnElement="z_create"><dc:Bounds x="780" y="212" width="120" height="76" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="z_end_di" bpmnElement="z_end"><dc:Bounds x="982" y="232" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="s_start_di" bpmnElement="s_start"><dc:Bounds x="982" y="662" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="gw_track_di" bpmnElement="gw_track" isMarkerVisible="true"><dc:Bounds x="1135" y="655" width="50" height="50" /><bpmndi:BPMNLabel><dc:Bounds x="1110" y="619" width="100" height="30" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="s_ign_di" bpmnElement="s_ign"><dc:Bounds x="1142" y="762" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="1184" y="765" width="100" height="30" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="s_add_di" bpmnElement="s_add"><dc:Bounds x="1260" y="642" width="120" height="76" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="gw_match_di" bpmnElement="gw_match" isMarkerVisible="true"><dc:Bounds x="1455" y="655" width="50" height="50" /><bpmndi:BPMNLabel><dc:Bounds x="1365" y="709" width="100" height="30" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="s_unmap_di" bpmnElement="s_unmap"><dc:Bounds x="1420" y="512" width="120" height="76" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="s_wait_di" bpmnElement="s_wait"><dc:Bounds x="1302" y="532" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="1194" y="535" width="100" height="30" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="s_pend_di" bpmnElement="s_pend"><dc:Bounds x="1580" y="642" width="120" height="76" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="o_review_di" bpmnElement="o_review"><dc:Bounds x="1740" y="862" width="120" height="76" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="s_write_di" bpmnElement="s_write"><dc:Bounds x="1900" y="642" width="120" height="76" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="s_end_di" bpmnElement="s_end"><dc:Bounds x="2102" y="662" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SF_0_di" bpmnElement="SF_0"><di:waypoint x="218" y="250" /><di:waypoint x="300" y="250" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_1_di" bpmnElement="SF_1"><di:waypoint x="420" y="250" /><di:waypoint x="460" y="250" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_2_di" bpmnElement="SF_2"><di:waypoint x="580" y="250" /><di:waypoint x="655" y="250" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_3_di" bpmnElement="SF_3"><di:waypoint x="680" y="225" /><di:waypoint x="680" y="200" /><bpmndi:BPMNLabel><dc:Bounds x="686" y="204" width="40" height="18" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_4_di" bpmnElement="SF_4"><di:waypoint x="705" y="250" /><di:waypoint x="780" y="250" /><bpmndi:BPMNLabel><dc:Bounds x="722" y="228" width="40" height="18" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_5_di" bpmnElement="SF_5"><di:waypoint x="900" y="250" /><di:waypoint x="982" y="250" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_6_di" bpmnElement="SF_6"><di:waypoint x="1018" y="680" /><di:waypoint x="1135" y="680" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_7_di" bpmnElement="SF_7"><di:waypoint x="1160" y="705" /><di:waypoint x="1160" y="762" /><bpmndi:BPMNLabel><dc:Bounds x="1166" y="724" width="40" height="18" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_8_di" bpmnElement="SF_8"><di:waypoint x="1185" y="680" /><di:waypoint x="1260" y="680" /><bpmndi:BPMNLabel><dc:Bounds x="1202" y="658" width="40" height="18" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_9_di" bpmnElement="SF_9"><di:waypoint x="1380" y="680" /><di:waypoint x="1455" y="680" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_10_di" bpmnElement="SF_10"><di:waypoint x="1505" y="680" /><di:waypoint x="1580" y="680" /><bpmndi:BPMNLabel><dc:Bounds x="1522" y="658" width="40" height="18" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_11_di" bpmnElement="SF_11"><di:waypoint x="1480" y="655" /><di:waypoint x="1480" y="588" /><bpmndi:BPMNLabel><dc:Bounds x="1486" y="612" width="40" height="18" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_12_di" bpmnElement="SF_12"><di:waypoint x="1420" y="550" /><di:waypoint x="1338" y="550" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_13_di" bpmnElement="SF_13"><di:waypoint x="1320" y="568" /><di:waypoint x="1320" y="642" /><bpmndi:BPMNLabel><dc:Bounds x="1326" y="596" width="84" height="18" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_14_di" bpmnElement="SF_14"><di:waypoint x="1640" y="718" /><di:waypoint x="1640" y="900" /><di:waypoint x="1740" y="900" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_15_di" bpmnElement="SF_15"><di:waypoint x="1800" y="862" /><di:waypoint x="1800" y="680" /><di:waypoint x="1900" y="680" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_16_di" bpmnElement="SF_16"><di:waypoint x="2020" y="680" /><di:waypoint x="2102" y="680" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF_0_di" bpmnElement="MF_0"><di:waypoint x="200" y="110" /><di:waypoint x="200" y="232" /><bpmndi:BPMNLabel><dc:Bounds x="206" y="121" width="112" height="18" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF_1_di" bpmnElement="MF_1"><di:waypoint x="490" y="288" /><di:waypoint x="490" y="370" /><bpmndi:BPMNLabel><dc:Bounds x="442" y="341" width="42" height="18" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF_2_di" bpmnElement="MF_2"><di:waypoint x="550" y="370" /><di:waypoint x="550" y="288" /><bpmndi:BPMNLabel><dc:Bounds x="556" y="341" width="91" height="18" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF_3_di" bpmnElement="MF_3"><di:waypoint x="840" y="288" /><di:waypoint x="840" y="370" /><bpmndi:BPMNLabel><dc:Bounds x="757" y="341" width="77" height="18" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF_4_di" bpmnElement="MF_4"><di:waypoint x="1000" y="440" /><di:waypoint x="1000" y="662" /><bpmndi:BPMNLabel><dc:Bounds x="1006" y="451" width="126" height="18" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF_5_di" bpmnElement="MF_5"><di:waypoint x="1960" y="642" /><di:waypoint x="1960" y="440" /><bpmndi:BPMNLabel><dc:Bounds x="1966" y="451" width="91" height="18" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

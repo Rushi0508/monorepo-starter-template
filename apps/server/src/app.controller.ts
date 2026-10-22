@@ -9,7 +9,9 @@ export class AppController {
 	constructor(private readonly appService: AppService) {}
 
 	@Get('health')
-	@ApiOperation({ summary: 'Health check' })
+	@ApiOperation({
+		summary: 'Health check',
+	})
 	@AllowAnonymous()
 	healthCheck(): string {
 		return this.appService.healthCheck();

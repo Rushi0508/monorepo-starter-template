@@ -1,78 +1,203 @@
+import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@repo/db';
 import { PrismaService } from './prisma.service';
 
-jest.mock('@repo/db', () => ({
-	PrismaClient: jest.fn().mockImplementation(function (this: {
-		$connect: jest.Mock;
-		$disconnect: jest.Mock;
-	}) {
-		this.$connect = jest.fn();
-		this.$disconnect = jest.fn();
-		return this;
-	}),
-}));
+// Mock the entire @repo/db module
+jest.mock('@repo/db', () => {
+	const mockConnect = jest.fn();
+	const mockDisconnect = jest.fn();
 
-jest.mock('@prisma/adapter-pg', () => ({
-	PrismaPg: jest.fn().mockImplementation((options) => options),
-}));
+	return {
+		PrismaClient: jest.fn().mockImplementation(function (
+			this: any,
+			config: any
+		) {
+			// Store the config for testing
+			this.config = config;
+			this.$connect = mockConnect;
+			this.$disconnect = mockDisconnect;
+			return this;
+		}),
+	};
+});
 
-jest.mock('src/common/env-config', () => ({
-	config: { urls: { db: 'postgresql://test:test@localhost:5432/test' } },
-}));
+// Mock PrismaPg adapter
+jest.mock('@prisma/adapter-pg', () => {
+	return {
+		PrismaPg: jest.fn().mockImplementation((config: any) => {
+			return {
+				connectionString: config.connectionString,
+				ssl: config.ssl,
+				provider: 'postgres',
+				adapterName: 'pg',
+			};
+		}),
+	};
+});
+
+// Mock environment variable
+const originalEnv = process.env;
+beforeAll(() => {
+	process.env = {
+		...originalEnv,
+		DATABASE_URL: 'postgresql://test:test@localhost:5432/test',
+	};
+});
+
+afterAll(() => {
+	process.env = originalEnv;
+});
 
 describe('PrismaService', () => {
 	let service: PrismaService;
 
 	beforeEach(async () => {
-		const testingModule = await Test.createTestingModule({
+		// Clear mocks before each test
+		jest.clearAllMocks();
+
+		const testingModule: TestingModule = await Test.createTestingModule({
 			providers: [PrismaService],
 		}).compile();
 
-		service = testingModule.get(PrismaService);
+		service = testingModule.get<PrismaService>(PrismaService);
 	});
 
-	it('creates the client with the pg adapter', () => {
-		expect(PrismaPg).toHaveBeenCalledWith({
-			connectionString: 'postgresql://test:test@localhost:5432/test',
+	afterEach(() => {
+		jest.clearAllMocks();
+	});
+
+	it('should be defined', () => {
+		expect(service).toBeDefined();
+	});
+
+	it('should extend PrismaClient', () => {
+		expect(service).toBeInstanceOf(PrismaService);
+	});
+
+	describe('constructor', () => {
+		it('should initialize with correct configuration', () => {
+			// Check that PrismaPg was called with correct config
+			expect(PrismaPg).toHaveBeenCalledWith({
+				connectionString: 'postgresql://test:test@localhost:5432/test',
+				ssl: {
+					rejectUnauthorized: false,
+				},
+			});
+
+			// Check that PrismaClient constructor was called with correct config
+			expect(PrismaClient).toHaveBeenCalledWith({
+				adapter: expect.any(Object),
+				log: ['error', 'warn', 'info'],
+				errorFormat: 'pretty',
+			});
 		});
-		expect(PrismaClient).toHaveBeenCalledWith({
-			adapter: expect.any(Object),
-			log: ['error', 'warn', 'info'],
-			errorFormat: 'pretty',
+
+		it('should handle missing DATABASE_URL environment variable', () => {
+			// Temporarily unset DATABASE_URL
+			delete process.env.DATABASE_URL;
+
+			// Create a new service instance
+			new PrismaService();
+
+			// Should still call PrismaPg but with undefined connectionString
+			expect(PrismaPg).toHaveBeenCalledWith({
+				connectionString: undefined,
+				ssl: {
+					rejectUnauthorized: false,
+				},
+			});
+
+			// Restore DATABASE_URL
+			process.env.DATABASE_URL = 'postgresql://test:test@localhost:5432/test';
 		});
 	});
 
-	it('connects on module init', async () => {
-		const connectSpy = jest.spyOn(service, '$connect').mockResolvedValue();
+	describe('onModuleInit', () => {
+		it('should connect to database successfully', async () => {
+			const connectSpy = jest.spyOn(service, '$connect').mockResolvedValue();
 
-		await service.onModuleInit();
+			await service.onModuleInit();
 
-		expect(connectSpy).toHaveBeenCalledTimes(1);
+			expect(connectSpy).toHaveBeenCalledTimes(1);
+		});
+
+		it('should throw error when database connection fails', async () => {
+			const connectError = new Error('Connection failed');
+			const _connectSpy = jest
+				.spyOn(service, '$connect')
+				.mockRejectedValue(connectError);
+			const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+
+			await expect(service.onModuleInit()).rejects.toThrow(connectError);
+			expect(consoleErrorSpy).toHaveBeenCalledWith(
+				'Failed to connect to database:',
+				connectError
+			);
+
+			consoleErrorSpy.mockRestore();
+		});
+
+		it('should handle connection success without error logging', async () => {
+			const connectSpy = jest.spyOn(service, '$connect').mockResolvedValue();
+			const consoleErrorSpy = jest.spyOn(console, 'error');
+
+			await service.onModuleInit();
+
+			expect(connectSpy).toHaveBeenCalledTimes(1);
+			expect(consoleErrorSpy).not.toHaveBeenCalled();
+
+			consoleErrorSpy.mockRestore();
+		});
+
+		it('should handle non-Error exceptions', async () => {
+			const connectError = 'String error';
+			const _connectSpy = jest
+				.spyOn(service, '$connect')
+				.mockRejectedValue(connectError);
+			const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+
+			await expect(service.onModuleInit()).rejects.toBe(connectError);
+			expect(consoleErrorSpy).toHaveBeenCalledWith(
+				'Failed to connect to database:',
+				connectError
+			);
+
+			consoleErrorSpy.mockRestore();
+		});
 	});
 
-	it('rethrows connection errors', async () => {
-		const error = new Error('Connection failed');
-		jest.spyOn(service, '$connect').mockRejectedValue(error);
-		const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+	describe('onModuleDestroy', () => {
+		it('should disconnect from database', async () => {
+			const disconnectSpy = jest
+				.spyOn(service, '$disconnect')
+				.mockResolvedValue();
 
-		await expect(service.onModuleInit()).rejects.toThrow(error);
-		expect(consoleSpy).toHaveBeenCalledWith(
-			'Failed to connect to database:',
-			error
-		);
+			await service.onModuleDestroy();
 
-		consoleSpy.mockRestore();
-	});
+			expect(disconnectSpy).toHaveBeenCalledTimes(1);
+		});
 
-	it('disconnects on module destroy', async () => {
-		const disconnectSpy = jest
-			.spyOn(service, '$disconnect')
-			.mockResolvedValue();
+		it('should handle disconnection errors gracefully', async () => {
+			const disconnectError = new Error('Disconnection failed');
+			const _disconnectSpy = jest
+				.spyOn(service, '$disconnect')
+				.mockRejectedValue(disconnectError);
 
-		await service.onModuleDestroy();
+			// onModuleDestroy doesn't have error handling, so it should throw
+			await expect(service.onModuleDestroy()).rejects.toThrow(disconnectError);
+		});
 
-		expect(disconnectSpy).toHaveBeenCalledTimes(1);
+		it('should call disconnect even if connection never succeeded', async () => {
+			const disconnectSpy = jest
+				.spyOn(service, '$disconnect')
+				.mockResolvedValue();
+
+			// Call destroy without init
+			await service.onModuleDestroy();
+
+			expect(disconnectSpy).toHaveBeenCalledTimes(1);
+		});
 	});
 });

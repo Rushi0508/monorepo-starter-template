@@ -1,5 +1,5 @@
-import type { LoginEmailSchema, OtpSchema } from '@repo/schemas';
-import type { z } from 'zod';
+import { LoginEmailSchema, OtpSchema } from '@repo/schemas';
+import { z } from 'zod';
 
 export interface AuthContextType {
 	id: string;

@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Defs_replenishment" targetNamespace="https://app.drinksauero.com/docs" exporter="Sauero docs" exporterVersion="1.0">
+  <bpmn:collaboration id="Collab_replenishment">
+    <bpmn:participant id="P_mb" name="Manuel Brothers (distributor)" processRef="Proc_mb" />
+    <bpmn:participant id="P_sauero" name="Sauero" processRef="Proc_sauero" />
+    <bpmn:participant id="P_bb" name="BlueBox / iDrive (3PL warehouse)" processRef="Proc_bb" />
+    <bpmn:participant id="P_shop" name="Shopify" />
+    <bpmn:messageFlow id="MF_0" name="Pickup order" sourceRef="sys_place" targetRef="bb_start" />
+    <bpmn:messageFlow id="MF_1" name="Accepted / rejected" sourceRef="bb_accept" targetRef="sys_place" />
+    <bpmn:messageFlow id="MF_2" name="Pickup request" sourceRef="sys_email" targetRef="mb_start" />
+    <bpmn:messageFlow id="MF_3" name="Reply" sourceRef="mb_reply" targetRef="ev_reply" />
+    <bpmn:messageFlow id="MF_4" name="Bill of Lading" sourceRef="mb_bol" targetRef="ev_bol" />
+    <bpmn:messageFlow id="MF_5" name="Status via BlueBox sync" sourceRef="bb_ship" targetRef="sys_status" />
+    <bpmn:messageFlow id="MF_6" name="Stock update" sourceRef="sys_stock" targetRef="P_shop" />
+  </bpmn:collaboration>
+  <bpmn:process id="Proc_mb" isExecutable="false">
+    <bpmn:startEvent id="mb_start" name="Pickup request received"><bpmn:messageEventDefinition id="MED_mb_start" /></bpmn:startEvent>
+    <bpmn:sendTask id="mb_reply" name="Reply to confirm the order"></bpmn:sendTask>
+    <bpmn:task id="mb_collect" name="Collect the pallet at iDrive (Monday)"></bpmn:task>
+    <bpmn:sendTask id="mb_bol" name="Email the Bill of Lading"></bpmn:sendTask>
+    <bpmn:endEvent id="mb_end" name="Pickup done"></bpmn:endEvent>
+    <bpmn:sequenceFlow id="SF_0" name="" sourceRef="mb_start" targetRef="mb_reply" />
+    <bpmn:sequenceFlow id="SF_1" name="" sourceRef="mb_reply" targetRef="mb_collect" />
+    <bpmn:sequenceFlow id="SF_2" name="" sourceRef="mb_collect" targetRef="mb_bol" />
+    <bpmn:sequenceFlow id="SF_3" name="" sourceRef="mb_bol" targetRef="mb_end" />
+  </bpmn:process>
+  <bpmn:process id="Proc_sauero" isExecutable="false">
+    <bpmn:laneSet id="LS_P_sauero">
+      <bpmn:lane id="L_ops" name="Operations">
+        <bpmn:flowNodeRef>ops_start</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>ops_create</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="L_sys" name="Sauerobase">
+        <bpmn:flowNodeRef>sys_number</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>sys_place</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>gw_acc</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>end_err</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>sys_save</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>gw_split</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>gw_email</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>end_noemail</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>sys_email</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>ev_reply</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>sys_judge</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>gw_ack</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>sys_ack</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>ev_bol</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>sys_ocr</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>gw_ready</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>sys_picked</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>end_picked</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>end_failed</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>ev_timer</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>sys_status</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>gw_status</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>sys_stock</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>end_synced</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>end_skip</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="ops_start" name="Distributor needs stock"></bpmn:startEvent>
+    <bpmn:task id="ops_create" name="Create transfer: products, quantities, pickup email on/off"></bpmn:task>
+    <bpmn:task id="sys_number" name="Generate transfer number (MB-####)"></bpmn:task>
+    <bpmn:sendTask id="sys_place" name="Place pickup-only order in BlueBox"></bpmn:sendTask>
+    <bpmn:exclusiveGateway id="gw_acc" name="Accepted by BlueBox?"></bpmn:exclusiveGateway>
+    <bpmn:endEvent id="end_err" name="Error shown, nothing saved"></bpmn:endEvent>
+    <bpmn:task id="sys_save" name="Save transfer and work out the pickup Monday"></bpmn:task>
+    <bpmn:parallelGateway id="gw_split" name=""></bpmn:parallelGateway>
+    <bpmn:exclusiveGateway id="gw_email" name="Pickup email ticked?"></bpmn:exclusiveGateway>
+    <bpmn:endEvent id="end_noemail" name="No email sent"></bpmn:endEvent>
+    <bpmn:sendTask id="sys_email" name="Email pickup request from the shared inbox"></bpmn:sendTask>
+    <bpmn:intermediateCatchEvent id="ev_reply" name="Reply received"><bpmn:messageEventDefinition id="MED_ev_reply" /></bpmn:intermediateCatchEvent>
+    <bpmn:task id="sys_judge" name="Check the reply (AI)"></bpmn:task>
+    <bpmn:exclusiveGateway id="gw_ack" name="Genuine confirmation?"></bpmn:exclusiveGateway>
+    <bpmn:task id="sys_ack" name="Mark Email ack"></bpmn:task>
+    <bpmn:intermediateCatchEvent id="ev_bol" name="Bill of Lading received"><bpmn:messageEventDefinition id="MED_ev_bol" /></bpmn:intermediateCatchEvent>
+    <bpmn:task id="sys_ocr" name="Read MB numbers on the document"></bpmn:task>
+    <bpmn:exclusiveGateway id="gw_ready" name="Request sent and acknowledged?"></bpmn:exclusiveGateway>
+    <bpmn:task id="sys_picked" name="Mark Picked up"></bpmn:task>
+    <bpmn:endEvent id="end_picked" name="Picked up"></bpmn:endEvent>
+    <bpmn:endEvent id="end_failed" name="Pickup email Failed"></bpmn:endEvent>
+    <bpmn:intermediateCatchEvent id="ev_timer" name="Scheduled status check"><bpmn:timerEventDefinition id="TED_ev_timer" /></bpmn:intermediateCatchEvent>
+    <bpmn:task id="sys_status" name="Read BlueBox order status (Sauero's synced copy)"></bpmn:task>
+    <bpmn:exclusiveGateway id="gw_status" name="Order status?"></bpmn:exclusiveGateway>
+    <bpmn:sendTask id="sys_stock" name="Add quantities to the Manuel Brothers location"></bpmn:sendTask>
+    <bpmn:endEvent id="end_synced" name="Synced"></bpmn:endEvent>
+    <bpmn:endEvent id="end_skip" name="Skipped (cancelled)"></bpmn:endEvent>
+    <bpmn:sequenceFlow id="SF_4" name="" sourceRef="ops_start" targetRef="ops_create" />
+    <bpmn:sequenceFlow id="SF_5" name="" sourceRef="ops_create" targetRef="sys_number" />
+    <bpmn:sequenceFlow id="SF_6" name="" sourceRef="sys_number" targetRef="sys_place" />
+    <bpmn:sequenceFlow id="SF_7" name="" sourceRef="sys_place" targetRef="gw_acc" />
+    <bpmn:sequenceFlow id="SF_8" name="No" sourceRef="gw_acc" targetRef="end_err" />
+    <bpmn:sequenceFlow id="SF_9" name="Yes" sourceRef="gw_acc" targetRef="sys_save" />
+    <bpmn:sequenceFlow id="SF_10" name="" sourceRef="sys_save" targetRef="gw_split" />
+    <bpmn:sequenceFlow id="SF_11" name="" sourceRef="gw_split" targetRef="gw_email" />
+    <bpmn:sequenceFlow id="SF_12" name="" sourceRef="gw_split" targetRef="ev_timer" />
+    <bpmn:sequenceFlow id="SF_13" name="No" sourceRef="gw_email" targetRef="end_noemail" />
+    <bpmn:sequenceFlow id="SF_14" name="Yes" sourceRef="gw_email" targetRef="sys_email" />
+    <bpmn:sequenceFlow id="SF_15" name="" sourceRef="sys_email" targetRef="ev_reply" />
+    <bpmn:sequenceFlow id="SF_16" name="" sourceRef="ev_reply" targetRef="sys_judge" />
+    <bpmn:sequenceFlow id="SF_17" name="" sourceRef="sys_judge" targetRef="gw_ack" />
+    <bpmn:sequenceFlow id="SF_18" name="No — wait for the next reply" sourceRef="gw_ack" targetRef="ev_reply" />
+    <bpmn:sequenceFlow id="SF_19" name="Yes" sourceRef="gw_ack" targetRef="sys_ack" />
+    <bpmn:sequenceFlow id="SF_20" name="" sourceRef="sys_ack" targetRef="ev_bol" />
+    <bpmn:sequenceFlow id="SF_21" name="" sourceRef="ev_bol" targetRef="sys_ocr" />
+    <bpmn:sequenceFlow id="SF_22" name="" sourceRef="sys_ocr" targetRef="gw_ready" />
+    <bpmn:sequenceFlow id="SF_23" name="No" sourceRef="gw_ready" targetRef="end_failed" />
+    <bpmn:sequenceFlow id="SF_24" name="Yes" sourceRef="gw_ready" targetRef="sys_picked" />
+    <bpmn:sequenceFlow id="SF_25" name="" sourceRef="sys_picked" targetRef="end_picked" />
+    <bpmn:sequenceFlow id="SF_26" name="" sourceRef="ev_timer" targetRef="sys_status" />
+    <bpmn:sequenceFlow id="SF_27" name="" sourceRef="sys_status" targetRef="gw_status" />
+    <bpmn:sequenceFlow id="SF_28" name="Still open" sourceRef="gw_status" targetRef="ev_timer" />
+    <bpmn:sequenceFlow id="SF_29" name="Shipped or delivered" sourceRef="gw_status" targetRef="sys_stock" />
+    <bpmn:sequenceFlow id="SF_30" name="Cancelled" sourceRef="gw_status" targetRef="end_skip" />
+    <bpmn:sequenceFlow id="SF_31" name="" sourceRef="sys_stock" targetRef="end_synced" />
+  </bpmn:process>
+  <bpmn:process id="Proc_bb" isExecutable="false">
+    <bpmn:startEvent id="bb_start" name="Pickup order received"><bpmn:messageEventDefinition id="MED_bb_start" /></bpmn:startEvent>
+    <bpmn:sendTask id="bb_accept" name="Accept or reject the order"></bpmn:sendTask>
+    <bpmn:task id="bb_prep" name="Prepare the pallet"></bpmn:task>
+    <bpmn:sendTask id="bb_ship" name="Hand over pallet, mark shipped"></bpmn:sendTask>
+    <bpmn:endEvent id="bb_end" name="Order shipped"></bpmn:endEvent>
+    <bpmn:sequenceFlow id="SF_32" name="" sourceRef="bb_start" targetRef="bb_accept" />
+    <bpmn:sequenceFlow id="SF_33" name="" sourceRef="bb_accept" targetRef="bb_prep" />
+    <bpmn:sequenceFlow id="SF_34" name="" sourceRef="bb_prep" targetRef="bb_ship" />
+    <bpmn:sequenceFlow id="SF_35" name="" sourceRef="bb_ship" targetRef="bb_end" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="Diagram_replenishment">
+    <bpmndi:BPMNPlane id="Plane_replenishment" bpmnElement="Collab_replenishment">
+      <bpmndi:BPMNShape id="P_mb_di" bpmnElement="P_mb" isHorizontal="true"><dc:Bounds x="40" y="40" width="3020" height="170" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="P_sauero_di" bpmnElement="P_sauero" isHorizontal="true"><dc:Bounds x="40" y="250" width="3020" height="620" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="L_ops_di" bpmnElement="L_ops" isHorizontal="true"><dc:Bounds x="70" y="250" width="2990" height="150" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="L_sys_di" bpmnElement="L_sys" isHorizontal="true"><dc:Bounds x="70" y="400" width="2990" height="470" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="P_bb_di" bpmnElement="P_bb" isHorizontal="true"><dc:Bounds x="40" y="910" width="3020" height="170" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="P_shop_di" bpmnElement="P_shop" isHorizontal="true"><dc:Bounds x="40" y="1120" width="3020" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="mb_start_di" bpmnElement="mb_start"><dc:Bounds x="1462" y="107" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="1432" y="71" width="96" height="30" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="mb_reply_di" bpmnElement="mb_reply"><dc:Bounds x="1660" y="87" width="120" height="76" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="mb_collect_di" bpmnElement="mb_collect"><dc:Bounds x="2060" y="87" width="120" height="76" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="mb_bol_di" bpmnElement="mb_bol"><dc:Bounds x="2300" y="87" width="120" height="76" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="mb_end_di" bpmnElement="mb_end"><dc:Bounds x="2582" y="107" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ops_start_di" bpmnElement="ops_start"><dc:Bounds x="182" y="307" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ops_create_di" bpmnElement="ops_create"><dc:Bounds x="300" y="287" width="120" height="76" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="sys_number_di" bpmnElement="sys_number"><dc:Bounds x="460" y="512" width="120" height="76" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="sys_place_di" bpmnElement="sys_place"><dc:Bounds x="620" y="512" width="120" height="76" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="gw_acc_di" bpmnElement="gw_acc" isMarkerVisible="true"><dc:Bounds x="815" y="525" width="50" height="50" /><bpmndi:BPMNLabel><dc:Bounds x="792" y="489" width="96" height="30" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_err_di" bpmnElement="end_err"><dc:Bounds x="822" y="682" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="sys_save_di" bpmnElement="sys_save"><dc:Bounds x="940" y="512" width="120" height="76" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="gw_split_di" bpmnElement="gw_split"><dc:Bounds x="1135" y="525" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="gw_email_di" bpmnElement="gw_email" isMarkerVisible="true"><dc:Bounds x="1295" y="525" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_noemail_di" bpmnElement="end_noemail"><dc:Bounds x="1302" y="427" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="1344" y="430" width="96" height="30" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="sys_email_di" bpmnElement="sys_email"><dc:Bounds x="1420" y="512" width="120" height="76" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ev_reply_di" bpmnElement="ev_reply"><dc:Bounds x="1622" y="532" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="sys_judge_di" bpmnElement="sys_judge"><dc:Bounds x="1740" y="512" width="120" height="76" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="gw_ack_di" bpmnElement="gw_ack" isMarkerVisible="true"><dc:Bounds x="1935" y="525" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="sys_ack_di" bpmnElement="sys_ack"><dc:Bounds x="2060" y="512" width="120" height="76" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ev_bol_di" bpmnElement="ev_bol"><dc:Bounds x="2262" y="532" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="sys_ocr_di" bpmnElement="sys_ocr"><dc:Bounds x="2380" y="512" width="120" height="76" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="gw_ready_di" bpmnElement="gw_ready" isMarkerVisible="true"><dc:Bounds x="2575" y="525" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="sys_picked_di" bpmnElement="sys_picked"><dc:Bounds x="2700" y="512" width="120" height="76" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_picked_di" bpmnElement="end_picked"><dc:Bounds x="2902" y="532" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_failed_di" bpmnElement="end_failed"><dc:Bounds x="2742" y="427" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ev_timer_di" bpmnElement="ev_timer"><dc:Bounds x="1302" y="682" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="sys_status_di" bpmnElement="sys_status"><dc:Bounds x="1420" y="662" width="120" height="76" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="gw_status_di" bpmnElement="gw_status" isMarkerVisible="true"><dc:Bounds x="1615" y="675" width="50" height="50" /><bpmndi:BPMNLabel><dc:Bounds x="1529" y="729" width="96" height="30" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="sys_stock_di" bpmnElement="sys_stock"><dc:Bounds x="1820" y="662" width="120" height="76" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_synced_di" bpmnElement="end_synced"><dc:Bounds x="2022" y="682" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_skip_di" bpmnElement="end_skip"><dc:Bounds x="1622" y="792" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="bb_start_di" bpmnElement="bb_start"><dc:Bounds x="662" y="977" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="bb_accept_di" bpmnElement="bb_accept"><dc:Bounds x="780" y="957" width="120" height="76" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="bb_prep_di" bpmnElement="bb_prep"><dc:Bounds x="1100" y="957" width="120" height="76" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="bb_ship_di" bpmnElement="bb_ship"><dc:Bounds x="1420" y="957" width="120" height="76" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="bb_end_di" bpmnElement="bb_end"><dc:Bounds x="1622" y="977" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SF_0_di" bpmnElement="SF_0"><di:waypoint x="1498" y="125" /><di:waypoint x="1660" y="125" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_1_di" bpmnElement="SF_1"><di:waypoint x="1780" y="125" /><di:waypoint x="2060" y="125" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_2_di" bpmnElement="SF_2"><di:waypoint x="2180" y="125" /><di:waypoint x="2300" y="125" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_3_di" bpmnElement="SF_3"><di:waypoint x="2420" y="125" /><di:waypoint x="2582" y="125" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_4_di" bpmnElement="SF_4"><di:waypoint x="218" y="325" /><di:waypoint x="300" y="325" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_5_di" bpmnElement="SF_5"><di:waypoint x="360" y="363" /><di:waypoint x="360" y="550" /><di:waypoint x="460" y="550" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_6_di" bpmnElement="SF_6"><di:waypoint x="580" y="550" /><di:waypoint x="620" y="550" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_7_di" bpmnElement="SF_7"><di:waypoint x="740" y="550" /><di:waypoint x="815" y="550" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_8_di" bpmnElement="SF_8"><di:waypoint x="840" y="575" /><di:waypoint x="840" y="682" /><bpmndi:BPMNLabel><dc:Bounds x="846" y="620" width="40" height="18" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_9_di" bpmnElement="SF_9"><di:waypoint x="865" y="550" /><di:waypoint x="940" y="550" /><bpmndi:BPMNLabel><dc:Bounds x="882" y="528" width="40" height="18" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_10_di" bpmnElement="SF_10"><di:waypoint x="1060" y="550" /><di:waypoint x="1135" y="550" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_11_di" bpmnElement="SF_11"><di:waypoint x="1185" y="550" /><di:waypoint x="1295" y="550" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_12_di" bpmnElement="SF_12"><di:waypoint x="1160" y="575" /><di:waypoint x="1160" y="700" /><di:waypoint x="1302" y="700" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_13_di" bpmnElement="SF_13"><di:waypoint x="1320" y="525" /><di:waypoint x="1320" y="463" /><bpmndi:BPMNLabel><dc:Bounds x="1326" y="485" width="40" height="18" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_14_di" bpmnElement="SF_14"><di:waypoint x="1345" y="550" /><di:waypoint x="1420" y="550" /><bpmndi:BPMNLabel><dc:Bounds x="1362" y="528" width="40" height="18" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_15_di" bpmnElement="SF_15"><di:waypoint x="1540" y="550" /><di:waypoint x="1622" y="550" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_16_di" bpmnElement="SF_16"><di:waypoint x="1658" y="550" /><di:waypoint x="1740" y="550" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_17_di" bpmnElement="SF_17"><di:waypoint x="1860" y="550" /><di:waypoint x="1935" y="550" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_18_di" bpmnElement="SF_18"><di:waypoint x="1960" y="525" /><di:waypoint x="1960" y="490" /><di:waypoint x="1640" y="490" /><di:waypoint x="1640" y="532" /><bpmndi:BPMNLabel><dc:Bounds x="1966" y="490" width="150" height="34" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_19_di" bpmnElement="SF_19"><di:waypoint x="1985" y="550" /><di:waypoint x="2060" y="550" /><bpmndi:BPMNLabel><dc:Bounds x="2002" y="528" width="40" height="18" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_20_di" bpmnElement="SF_20"><di:waypoint x="2180" y="550" /><di:waypoint x="2262" y="550" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_21_di" bpmnElement="SF_21"><di:waypoint x="2298" y="550" /><di:waypoint x="2380" y="550" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_22_di" bpmnElement="SF_22"><di:waypoint x="2500" y="550" /><di:waypoint x="2575" y="550" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_23_di" bpmnElement="SF_23"><di:waypoint x="2600" y="525" /><di:waypoint x="2600" y="445" /><di:waypoint x="2742" y="445" /><bpmndi:BPMNLabel><dc:Bounds x="2606" y="476" width="40" height="18" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_24_di" bpmnElement="SF_24"><di:waypoint x="2625" y="550" /><di:waypoint x="2700" y="550" /><bpmndi:BPMNLabel><dc:Bounds x="2642" y="528" width="40" height="18" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_25_di" bpmnElement="SF_25"><di:waypoint x="2820" y="550" /><di:waypoint x="2902" y="550" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_26_di" bpmnElement="SF_26"><di:waypoint x="1338" y="700" /><di:waypoint x="1420" y="700" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_27_di" bpmnElement="SF_27"><di:waypoint x="1540" y="700" /><di:waypoint x="1615" y="700" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_28_di" bpmnElement="SF_28"><di:waypoint x="1640" y="675" /><di:waypoint x="1640" y="640" /><di:waypoint x="1320" y="640" /><di:waypoint x="1320" y="682" /><bpmndi:BPMNLabel><dc:Bounds x="1646" y="648" width="70" height="18" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_29_di" bpmnElement="SF_29"><di:waypoint x="1665" y="700" /><di:waypoint x="1820" y="700" /><bpmndi:BPMNLabel><dc:Bounds x="1672" y="678" width="140" height="18" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_30_di" bpmnElement="SF_30"><di:waypoint x="1640" y="725" /><di:waypoint x="1640" y="792" /><bpmndi:BPMNLabel><dc:Bounds x="1646" y="750" width="63" height="18" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_31_di" bpmnElement="SF_31"><di:waypoint x="1940" y="700" /><di:waypoint x="2022" y="700" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_32_di" bpmnElement="SF_32"><di:waypoint x="698" y="995" /><di:waypoint x="780" y="995" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_33_di" bpmnElement="SF_33"><di:waypoint x="900" y="995" /><di:waypoint x="1100" y="995" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_34_di" bpmnElement="SF_34"><di:waypoint x="1220" y="995" /><di:waypoint x="1420" y="995" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_35_di" bpmnElement="SF_35"><di:waypoint x="1540" y="995" /><di:waypoint x="1622" y="995" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF_0_di" bpmnElement="MF_0"><di:waypoint x="650" y="588" /><di:waypoint x="650" y="782" /><di:waypoint x="680" y="782" /><di:waypoint x="680" y="977" /><bpmndi:BPMNLabel><dc:Bounds x="656" y="676" width="84" height="18" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF_1_di" bpmnElement="MF_1"><di:waypoint x="840" y="957" /><di:waypoint x="840" y="772" /><di:waypoint x="710" y="772" /><di:waypoint x="710" y="588" /><bpmndi:BPMNLabel><dc:Bounds x="846" y="856" width="133" height="18" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF_2_di" bpmnElement="MF_2"><di:waypoint x="1480" y="512" /><di:waypoint x="1480" y="143" /><bpmndi:BPMNLabel><dc:Bounds x="1486" y="318" width="98" height="18" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF_3_di" bpmnElement="MF_3"><di:waypoint x="1720" y="163" /><di:waypoint x="1720" y="348" /><di:waypoint x="1640" y="348" /><di:waypoint x="1640" y="532" /><bpmndi:BPMNLabel><dc:Bounds x="1726" y="246" width="40" height="18" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF_4_di" bpmnElement="MF_4"><di:waypoint x="2360" y="163" /><di:waypoint x="2360" y="348" /><di:waypoint x="2280" y="348" /><di:waypoint x="2280" y="532" /><bpmndi:BPMNLabel><dc:Bounds x="2366" y="246" width="98" height="18" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF_5_di" bpmnElement="MF_5"><di:waypoint x="1480" y="957" /><di:waypoint x="1480" y="738" /><bpmndi:BPMNLabel><dc:Bounds x="1324" y="830" width="150" height="34" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF_6_di" bpmnElement="MF_6"><di:waypoint x="1880" y="738" /><di:waypoint x="1880" y="1120" /><bpmndi:BPMNLabel><dc:Bounds x="1886" y="920" width="84" height="18" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

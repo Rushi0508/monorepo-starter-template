@@ -1,27 +1,33 @@
 {
 	"name": "@repo/db",
 	"version": "0.0.0",
-	"private": true,
 	"main": "./generated/prisma/index.js",
 	"types": "./generated/prisma/index.d.ts",
 	"exports": {
-		".": "./generated/prisma/index.js"
+		".": "./generated/prisma/index.js",
+		"./generated/prisma/runtime/client": "./generated/prisma/runtime/client.js"
 	},
 	"scripts": {
 		"postinstall": "prisma generate",
 		"db:generate": "prisma generate",
-		"db:migrate": "prisma migrate dev",
-		"db:migrate-create-only": "prisma migrate dev --create-only",
+		"db:migrate": "heizen-secrets run -e ../../apps/server/.env -- prisma migrate dev",
+		"db:migrate-create-only": "heizen-secrets run -e ../../apps/server/.env -- prisma migrate dev --create-only",
 		"db:deploy": "prisma migrate deploy",
-		"db:studio": "prisma studio"
-	},
-	"dependencies": {
-		"@prisma/client": "^7.10.1",
-		"@prisma/client-runtime-utils": "^7.10.1",
-		"dotenv": "^18.0.9"
+		"db:studio": "heizen-secrets run -e ../../apps/server/.env -- prisma studio"
 	},
 	"devDependencies": {
 		"@repo/typescript-config": "workspace:*",
-		"prisma": "^7.10.1"
+		"@types/bcrypt": "^5.0.2",
+		"bcrypt": "^6.0.0",
+		"dotenv-cli": "^7.4.2",
+		"prisma": "^7.2.0",
+		"ts-node": "^10.9.2",
+		"tsx": "^4.19.0"
+	},
+	"dependencies": {
+		"@prisma/adapter-pg": "^7.2.0",
+		"@repo/constants": "workspace:*",
+		"@prisma/client": "^7.2.0",
+		"dotenv": "^17.4.2"
 	}
 }

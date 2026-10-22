@@ -1,10 +1,12 @@
-export const getInitials = (name: string, limit = 2): string =>
-	name
-		.split(' ')
-		.filter(Boolean)
-		.map((word) => word.charAt(0).toUpperCase())
-		.join('')
-		.slice(0, Math.min(limit, 2));
+export const getInitials = (name: string, limit: number = 2) => {
+	limit = Math.min(limit, 2);
+	return name
+		?.split(' ')
+		?.map((word) => word.charAt(0).toUpperCase())
+		?.join('')
+		?.slice(0, limit)
+		?.toUpperCase();
+};
 
 export const enumToText = (
 	enumValue?: string | null,
@@ -12,6 +14,8 @@ export const enumToText = (
 ): string => {
 	if (!enumValue) return '';
 
+	// Split snake_case and camelCase/PascalCase into words.
+	// Only lowercase→Upper (not digit→Upper) so B2B / A1B stay intact.
 	const words = enumValue
 		.replace(/_/g, ' ')
 		.replace(/([a-z])([A-Z])/g, '$1 $2')
@@ -24,6 +28,7 @@ export const enumToText = (
 
 	return words
 		.map((word) =>
+			// Preserve existing acronyms like API, URL, ID
 			/^[A-Z0-9]{2,}$/.test(word)
 				? word
 				: word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
@@ -31,26 +36,65 @@ export const enumToText = (
 		.join(' ');
 };
 
-export const deepTrim = <T>(obj: T): T => {
+export function formatCurrency(
+	amount: number,
+	currency: string = 'USD'
+): string {
+	// Collapse -0 / tiny float noise so UI never shows "-$0"
+	const rounded = Math.round(amount * 10) / 10;
+	const value =
+		Object.is(rounded, -0) || Math.abs(rounded) < 1e-9 ? 0 : rounded;
+
+	return new Intl.NumberFormat('en-US', {
+		style: 'currency',
+		currency,
+		minimumFractionDigits: 0,
+		maximumFractionDigits: 1,
+	}).format(value);
+}
+
+export const deepTrim = (obj: unknown): unknown => {
 	if (typeof obj === 'string') {
-		return obj.trim() as T;
-	}
-	if (Array.isArray(obj)) {
-		return obj.map(deepTrim) as T;
-	}
-	if (typeof obj === 'object' && obj !== null && !(obj instanceof Date)) {
+		return obj.trim();
+	} else if (Array.isArray(obj)) {
+		return obj.map(deepTrim);
+	} else if (typeof obj === 'object' && obj !== null) {
 		return Object.fromEntries(
 			Object.entries(obj).map(([key, value]) => [key, deepTrim(value)])
-		) as T;
+		);
 	}
 	return obj;
 };
 
-export const humanizeKey = (key: string): string =>
-	key
+export const normalizeText = (text: string) =>
+	text
+		.trim()
+		.replaceAll(/[^a-zA-Z0-9\s]/g, '') // remove special chars
+		.replaceAll(/\s+/g, ' ')
+		.toUpperCase();
+
+export const areValuesDifferent = (
+	existingValue: unknown,
+	updatedValue: unknown
+): boolean => {
+	if (
+		typeof existingValue !== 'object' ||
+		existingValue === null ||
+		typeof updatedValue !== 'object' ||
+		updatedValue === null
+	) {
+		return existingValue !== updatedValue;
+	}
+
+	return JSON.stringify(existingValue) !== JSON.stringify(updatedValue);
+};
+
+export const humanizeKey = (key: string): string => {
+	return key
 		.replaceAll(/([a-z])([A-Z])/g, '$1 $2')
 		.replaceAll(/([A-Za-z])(\d+)/g, '$1 $2')
 		.replaceAll(/_/g, ' ')
 		.replaceAll(/\s+/g, ' ')
 		.trim()
 		.replaceAll(/\b\w/g, (char) => char.toUpperCase());
+};

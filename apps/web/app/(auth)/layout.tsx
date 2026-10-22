@@ -1,7 +1,11 @@
-const AuthLayout = ({ children }: { children: React.ReactNode }) => (
-	<main className='bg-muted/40 flex min-h-dvh w-full items-center justify-center p-4'>
-		{children}
-	</main>
-);
+import type React from 'react';
+
+const AuthLayout = ({ children }: { children: React.ReactNode }) => {
+	return (
+		<div className='flex min-h-dvh items-center justify-center w-full'>
+			{children}
+		</div>
+	);
+};
 
 export default AuthLayout;

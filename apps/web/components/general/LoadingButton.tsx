@@ -1,21 +1,32 @@
+import type { ButtonProps } from '@repo/ui/components/button';
 import { Button } from '@repo/ui/components/button';
-import { Spinner } from '@repo/ui/components/spinner';
-import type { ComponentProps } from 'react';
+import { cn } from '@repo/ui/lib/utils';
+import { Loader2 } from 'lucide-react';
 
-type LoadingButtonProps = ComponentProps<typeof Button> & {
+interface LoadingButtonProps extends ButtonProps {
 	isLoading?: boolean;
-};
+	showChildren?: boolean;
+}
 
-export function LoadingButton({
-	isLoading = false,
-	disabled,
+const LoadingButton = ({
+	isLoading,
 	children,
+	className,
+	showChildren = true,
 	...props
-}: LoadingButtonProps) {
+}: LoadingButtonProps) => {
 	return (
-		<Button disabled={disabled || isLoading} {...props}>
-			{isLoading && <Spinner data-icon='inline-start' />}
-			{children}
+		<Button className={cn(className)} disabled={isLoading} {...props}>
+			{isLoading ? (
+				<div className='flex items-center gap-2'>
+					<Loader2 className='h-4 w-4 animate-spin' />
+					{showChildren ? children : null}
+				</div>
+			) : (
+				children
+			)}
 		</Button>
 	);
-}
+};
+
+export default LoadingButton;

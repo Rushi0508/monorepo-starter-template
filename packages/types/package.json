@@ -1,20 +1,19 @@
 {
 	"name": "@repo/types",
 	"version": "0.0.0",
-	"private": true,
 	"main": "./dist/index.js",
 	"types": "./dist/index.d.ts",
+	"private": true,
 	"scripts": {
-		"build": "rm -rf dist && tsc --build --force tsconfig.json",
-		"dev": "tsc --build --watch --preserveWatchOutput tsconfig.json",
-		"typecheck": "tsc --noEmit",
+		"build": "rm -rf dist && tsc --build --force ./tsconfig.json",
+		"dev": "rm -rf dist && tsc --build --force ./tsconfig.json --watch",
+		"build:watch": "tsc --build --force ./tsconfig.json --watch",
 		"postinstall": "pnpm build"
 	},
 	"dependencies": {
+		"@repo/constants": "workspace:*",
+		"@repo/enums": "workspace:*",
 		"@repo/schemas": "workspace:*",
-		"zod": "^4.6.7"
-	},
-	"devDependencies": {
-		"@repo/typescript-config": "workspace:*"
+		"@repo/db": "workspace:*"
 	}
 }

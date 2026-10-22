@@ -5,11 +5,21 @@
 	"transform": {
 		"^.+\\.(t|j)s$": "ts-jest"
 	},
-	"transformIgnorePatterns": ["/node_modules/"],
+	"transformIgnorePatterns": ["/node_modules/", "../prisma/client/"],
 	"verbose": true,
 	"collectCoverage": true,
 	"coverageProvider": "v8",
-	"collectCoverageFrom": ["src/**/*.service.ts"],
+	"collectCoverageFrom": [
+		"**/*service.(t|j)s",
+		"!**/*.spec.ts",
+		"!**/*.controller.spec.ts",
+		"!**/*.e2e-spec.ts",
+		"!**/main.ts",
+		"!**/node_modules/**",
+		"!**/dist/**",
+		"!**/coverage/**",
+		"!**/test/**"
+	],
 	"coverageThreshold": {
 		"global": {
 			"branches": 100,
@@ -22,7 +32,8 @@
 	"coverageReporters": ["text", "lcov", "html"],
 	"testEnvironment": "node",
 	"moduleNameMapper": {
-		"^src/(.*)$": "<rootDir>/src/$1"
+		"^src/(.*)$": "<rootDir>/src/$1",
+		"^prisma/(.*)$": "<rootDir>/prisma/$1"
 	},
 	"moduleDirectories": ["node_modules", "src"],
 	"testTimeout": 10000,

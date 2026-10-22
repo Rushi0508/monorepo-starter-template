@@ -1,7 +1,34 @@
+import { isValidPhoneNumber } from 'react-phone-number-input';
 import { z } from 'zod';
 
-export const StringSchema = z.string().trim();
+export const PhoneNumberSchema = z
+	.string()
+	.trim()
+	.min(1, 'Phone number is required')
+	.refine((val) => isValidPhoneNumber(val), {
+		message: 'Please enter a valid phone number',
+	});
 
+export const OptionalPhoneNumberSchema = z.preprocess(
+	(value) => {
+		if (value === null || value === undefined) return undefined;
+		if (typeof value === 'string') {
+			const trimmed = value.trim();
+			if (trimmed === '') return undefined;
+			return trimmed.replaceAll(/[\s-]/g, '');
+		}
+		return value;
+	},
+	z
+		.string()
+		.trim()
+		.refine((val) => isValidPhoneNumber(val), {
+			message: 'Please enter a valid phone number',
+		})
+		.optional()
+);
+
+export const StringSchema = z.string().trim();
 export const EmailSchema = z
 	.email('Invalid email address')
 	.trim()
@@ -22,11 +49,16 @@ export const booleanCoerce = z
 	.transform((value): boolean => {
 		if (typeof value === 'boolean') return value;
 		if (typeof value === 'number') return value === 1;
-		const normalized = value.trim().toLowerCase();
-		return normalized === 'true' || normalized === '1' || normalized === 'yes';
+		if (typeof value === 'string') {
+			const normalized = value.trim().toLowerCase();
+			return (
+				normalized === 'true' || normalized === '1' || normalized === 'yes'
+			);
+		}
+		return Boolean(value);
 	});
 
-export const numberCoerce = (min = 0) =>
+export const numberCoerce = (min: number = 0) =>
 	z
 		.union([z.number(), z.string()])
 		.transform((value): number => {
@@ -41,3 +73,18 @@ export const DateSchema = z
 	.refine((val) => val === '' || !Number.isNaN(Date.parse(val)), {
 		message: 'Please enter a valid date',
 	});
+
+export const RequiredDateSchema = z.string().refine(
+	(val) => {
+		if (!val) return false;
+
+		const date = new Date(val);
+		return !Number.isNaN(date.getTime()) && /^\d{4}-\d{2}-\d{2}$/.test(val);
+	},
+	{
+		message: 'Please enter a valid date',
+	}
+);
+
+export const JsonSchema = z.any();
+export const NumberSchema = z.number().nullable();

@@ -1,81 +1,105 @@
-# Monorepo Starter Template
+### Sauero
 
-Next.js + NestJS monorepo with email OTP login, Prisma/PostgreSQL, and a shadcn/ui
-(Base UI) component library.
+https://app.drinksauero.com
 
-| Path                         | What it is                                                        |
-| ---------------------------- | ----------------------------------------------------------------- |
-| `apps/web`                   | Next.js 16 app (App Router, React 19, Tailwind 4, TanStack Query) |
-| `apps/server`                | NestJS 12 API (Better Auth, Prisma, Swagger, pino logging)        |
-| `packages/ui`                | shadcn/ui components on Base UI, shared Tailwind theme            |
-| `packages/db`                | Prisma schema, migrations and generated client                    |
-| `packages/schemas`           | Zod schemas shared by web and server                              |
-| `packages/types`             | Shared TypeScript types                                           |
-| `packages/utils`             | Shared helpers                                                    |
-| `packages/typescript-config` | Base `tsconfig` files                                             |
+## Documentation
 
-## Requirements
+Read the documentation at https://app.drinksauero.com/docs.
 
-- Node.js 24.9+ (`nvm use` reads `.nvmrc`)
-- pnpm 10 (`corepack enable`)
-- Docker, for the local Postgres
+Each page there is a file in the [`docs`](./docs) folder. Changes appear on the site after
+the next release.
 
-## Getting started
+### Add or edit a page
 
-```bash
-pnpm install
-cp apps/server/.env.example apps/server/.env   # set BETTER_AUTH_SECRET: openssl rand -base64 32
-cp apps/web/.env.example apps/web/.env
-docker compose up -d                           # Postgres on localhost:5432
-pnpm db:migrate                                # apply migrations
-pnpm dev                                       # web on :3000, API on :3001
-```
+1. Open the folder that fits the topic:
 
-Open http://localhost:3000, enter any email and use the OTP **`123456`**. The first
-sign-in creates the user.
+   | Folder | What goes in it |
+   | --- | --- |
+   | `01-business` | How the business works — rules, calculations, limitations |
+   | `02-features` | What each screen does |
+   | `03-workflows` | Processes and automations, step by step |
+   | `04-technical` | How things work behind the scenes |
+   | `05-guides` | How-to guides |
 
-API docs (non-production only): http://localhost:3001/api/docs
+2. To add a page, upload a new `.md` file to that folder. The easiest start is to copy an
+   existing page in the same folder and replace its content. Every page starts like this:
 
-## Auth
+   ```md
+   ---
+   order: 3
+   title: Order Visibility
+   description: One line shown under the page title.
+   last_verified: 2026-10-02
+   ---
 
-Better Auth runs inside the NestJS API under `/api/auth`, using the email OTP plugin with a
-fixed code (`STATIC_OTP` in `apps/server/src/common/auth.ts`). To send real codes, replace
-`generateOTP` and `sendVerificationOTP` there with a generated code and an email provider.
-- Every API route requires a session by default. Mark public routes with `@AllowAnonymous()`.
-- Read the current user in a controller with `@Session() session: UserSession`.
-- On the web, `proxy.ts` redirects signed-out visitors to `/login`, and `AuthProvider`
-  loads the current user for everything under `app/(main)`.
+   # Order Visibility
+   ```
 
-## Scripts
+   - `title` — the name shown in the sidebar.
+   - `description` — optional; a one-line summary shown under the page title.
+   - `order` — where the page sits in its folder; lower numbers come first.
+   - `last_verified` — the date someone last checked the page is still accurate.
+   - The line starting with `#` is the heading at the top of the page.
 
-| Command                         | What it does                                               |
-| ------------------------------- | ---------------------------------------------------------- |
-| `pnpm dev`                      | Run every app and package in watch mode                    |
-| `pnpm build`                    | Production build                                           |
-| `pnpm typecheck`                | Type-check every package                                   |
-| `pnpm lint` / `pnpm format:fix` | Biome lint and format (with fixes)                         |
-| `pnpm test:unit`                | Server unit tests                                          |
-| `pnpm depcruise`                | Check import boundaries (see `.dependency-cruiser.cjs`)    |
-| `pnpm db:migrate`               | Create and apply a migration after editing `schema.prisma` |
-| `pnpm db:studio`                | Open Prisma Studio                                         |
+3. Break the page into sections with lines starting `##` (and `###` for smaller ones). Each
+   section appears in the "On this page" menu, can be found through search, and is how the
+   AI assistant looks things up.
 
-## Adding UI components
+4. To edit a page, open its file and change the text.
 
-```bash
-cd apps/web
-pnpm dlx shadcn@latest add dialog
-```
+### Add an image
 
-Components land in `packages/ui/src/components` and are imported as
-`@repo/ui/components/<name>`.
+1. Upload the image to [`apps/web/public/images/docs`](./apps/web/public/images/docs).
+2. In the page, put this line where the image should appear, on a line of its own:
 
-## Git hooks
+   ```md
+   ![What the image shows](/images/docs/your-image.jpg)
+   ```
 
-`pnpm install` sets up lefthook. Each commit runs gitleaks, Biome, type-checking and
-dependency-cruiser, and the message must follow Conventional Commits.
+   Replace `your-image.jpg` with the file's name. The text in the square brackets is shown
+   as the caption under the image.
 
-## TypeScript versions
+Images can be opened by anyone with the link, so don't use screenshots that show real
+customer names, emails or addresses.
 
-Everything uses TypeScript 7 except `apps/server` and dependency-cruiser, which stay on
-TypeScript 6. The Nest CLI, its Swagger plugin, ts-jest and dependency-cruiser all need the
-TypeScript compiler API, which TypeScript 7.0 does not ship yet; it is expected in 7.1.
+### Add a process diagram (BPMN)
+
+Processes in the **Workflows** section are drawn as BPMN diagrams — the standard format for
+business process diagrams. See
+[Distributor Replenishment](./docs/03-workflows/distributor-replenishment.md) for an example.
+
+**Why both a BPMN file and an image?** A `.bpmn` file is the editable source: anyone can
+open it in a BPMN tool and change the process later. But the help center, web browsers and
+the PDF / Word exports cannot display a `.bpmn` file, so readers need an image of the
+diagram. Keep the two together: the image is what people see, the `.bpmn` file is what you
+update.
+
+1. Draw the process in a BPMN tool such as [bpmn.io](https://demo.bpmn.io), Camunda Modeler
+   or draw.io, and save it as a `.bpmn` file.
+2. Export the diagram from the same tool as a **PNG** image. This is required — it is what
+   the PDF and Word exports use.
+3. Optionally also export it as an **SVG**. SVG stays sharp at any zoom on the website. It
+   is not required; if you add one, give it the same name as the PNG.
+4. Upload the files, all with the same name, to
+   [`apps/web/public/images/docs/bpmn`](./apps/web/public/images/docs/bpmn):
+
+   ```
+   order-intake.bpmn   ← the editable source
+   order-intake.png    ← required
+   order-intake.svg    ← optional
+   ```
+
+5. In the page, wherever the diagram should appear, show the image (use `.svg` if you
+   uploaded one, otherwise `.png`) and link the source file:
+
+   ```md
+   ![What the process shows](/images/docs/bpmn/order-intake.svg)
+
+   The source, [order-intake.bpmn](/images/docs/bpmn/order-intake.bpmn), opens in any BPMN tool.
+   ```
+
+Keep the process written out in text on the same page too. The AI assistant reads text,
+not images, so the written description is how it answers questions about the process.
+
+When a process changes, open the `.bpmn` file, update it, and export the image(s) again
+under the same name, so the page picks up the new version.

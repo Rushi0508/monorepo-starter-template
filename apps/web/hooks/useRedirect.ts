@@ -1,21 +1,41 @@
 import { useRouter } from 'next/navigation';
 import { useCallback } from 'react';
+import { envConfig } from '@/env-config';
 import { signOut } from '@/lib/auth-client';
 
 export const useRedirect = () => {
 	const router = useRouter();
 
-	const handleLogout = useCallback(
-		async (error?: string) => {
-			await signOut();
-			const query = error ? `?error=${encodeURIComponent(error)}` : '';
-			router.replace(`/login${query}`);
-			router.refresh();
-		},
-		[router]
-	);
+	const redirect = (path: string) => {
+		router.push(path);
+	};
 
-	const goBack = useCallback(() => router.back(), [router]);
+	const redirectCustomers = () => {
+		router.push('/customers');
+	};
 
-	return { handleLogout, goBack };
+	const redirectCustomer = (id: string) => {
+		router.push(`/customers/${id}`);
+	};
+
+	const handleLogout = useCallback(async (error?: string) => {
+		await signOut();
+		if (error) {
+			globalThis.location.href = `${envConfig.appUrl}/login?error=${error}`;
+		} else {
+			globalThis.location.reload();
+		}
+	}, []);
+
+	const goBack = useCallback(() => {
+		router.back();
+	}, [router]);
+
+	return {
+		redirect,
+		redirectCustomer,
+		redirectCustomers,
+		handleLogout,
+		goBack,
+	};
 };

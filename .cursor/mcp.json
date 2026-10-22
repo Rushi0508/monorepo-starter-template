@@ -1,0 +1,10 @@
+{
+	"mcpServers": {
+		"sauero-local": {
+			"url": "http://localhost:3002/mcp"
+		},
+		"sauero": {
+			"url": "https://sauero.opengig.work/mcp"
+		}
+	}
+}

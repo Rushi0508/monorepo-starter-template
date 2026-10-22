@@ -1,3 +1,16 @@
+// Global Jest setup for mocking common dependencies
+
+// Prevent real nodemailer/pool side-effects during unit tests
+jest.mock('@repo/mail/', () => ({
+	sendMail: jest.fn().mockResolvedValue(undefined),
+	emailUserCreateTemplate: jest.fn().mockReturnValue({
+		subject: 'subject',
+		text: 'text',
+		html: '<p>html</p>',
+	}),
+}));
+
+// Mock Logger globally to ensure 100% coverage
 const mockLogger = {
 	log: jest.fn(),
 	error: jest.fn(),
@@ -6,6 +19,7 @@ const mockLogger = {
 	verbose: jest.fn(),
 };
 
+// Mock Logger constructor while preserving NestJS testing functionality
 jest.mock('@nestjs/common', () => {
 	const actual = jest.requireActual('@nestjs/common');
 	return {
@@ -21,6 +35,8 @@ jest.mock('@nestjs/common', () => {
 	};
 });
 
+// Global setup to spy on logger methods after service instantiation
 beforeEach(() => {
+	// This will be called before each test
 	jest.clearAllMocks();
 });

@@ -1,28 +1,25 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { getSession } from './lib/auth-client';
 
-const AUTH_ROUTES = ['/login'];
+const authRoutes = ['/login'];
 
 export async function proxy(req: NextRequest) {
-	const { pathname, search, origin } = req.nextUrl;
-	const isAuthRoute = AUTH_ROUTES.includes(pathname);
+	const { nextUrl } = req;
+	const { pathname, origin } = nextUrl;
+	const token = await getSession({
+		fetchOptions: {
+			headers: req.headers,
+		},
+	});
 
-	const session = await getSession({
-		fetchOptions: { headers: req.headers },
-	})
-		.then(({ data }) => data)
-		.catch(() => null);
-
-	if (!session) {
-		if (isAuthRoute) return NextResponse.next();
-		const loginUrl = new URL('/login', origin);
-		if (pathname !== '/') {
-			loginUrl.searchParams.set('callbackURL', `${pathname}${search}`);
+	if (!token.data) {
+		if (authRoutes.includes(pathname)) {
+			return NextResponse.next();
 		}
-		return NextResponse.redirect(loginUrl);
+		return NextResponse.redirect(new URL('/login', origin));
 	}
 
-	if (isAuthRoute) {
+	if (authRoutes.includes(pathname)) {
 		return NextResponse.redirect(new URL('/', origin));
 	}
 

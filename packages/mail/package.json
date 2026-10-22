@@ -1,0 +1,20 @@
+{
+	"name": "@repo/mail",
+	"version": "0.0.0",
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"private": true,
+	"scripts": {
+		"build": "rm -rf dist && tsc --build --force ./tsconfig.json",
+		"dev": "rm -rf dist && tsc --build --force ./tsconfig.json --watch",
+		"build:watch": "tsc --build --force ./tsconfig.json --watch",
+		"postinstall": "pnpm build"
+	},
+	"dependencies": {
+		"nodemailer": "^10.0.9"
+	},
+	"devDependencies": {
+		"@types/node": "^22.10.7",
+		"@types/nodemailer": "^8.0.0"
+	}
+}
