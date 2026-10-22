@@ -2,12 +2,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 /**
- * The repo's `docs/` folder, read straight from disk. Shared by the web app
- * (which renders it) and the MCP server (which hands it to AI assistants), so
- * both agree on which docs exist and what URL each one lives at.
+ * The repo's `docs/` folder, read straight from disk and rendered by the web
+ * app, which decides which docs exist and what URL each one lives at.
  *
- * Both apps run with their own folder as the working directory
- * (apps/web, apps/mcp), which puts `docs/` two levels up.
+ * The web app runs with apps/web as the working directory, which puts `docs/`
+ * two levels up.
  */
 export const DOCS_ROOT = path.join(process.cwd(), '..', '..', 'docs');
 

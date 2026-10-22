@@ -33,12 +33,11 @@ import {
 	SidebarTrigger,
 	useSidebar,
 } from '@repo/ui/components/sidebar';
-import { ArrowUpRight, ChevronRight } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import * as React from 'react';
-import { useMemo, useRef, useState } from 'react';
-import McpSkillsConnectDialog from '@/components/skills-mcp/McpSkillsConnectDialog';
+import { useMemo, useRef } from 'react';
 import { APP_ROUTES, type RouteBadge } from '@/config/routes';
 import { useBreadcrumb } from '@/contexts/BreadcrumbContext';
 import { useFolkMappingSummary } from '@/queries';
@@ -121,7 +120,6 @@ export function AppSidebar({
 	const contentRef = useRef<HTMLDivElement>(null);
 	const { setOpenMobile, isMobile, open } = useSidebar();
 	const { segments: breadcrumbSegments } = useBreadcrumb();
-	const [connectDialogOpen, setConnectDialogOpen] = useState(false);
 	const { data: folkSummary } = useFolkMappingSummary();
 
 	const badgeCounts: Record<RouteBadge, number> = {
@@ -157,26 +155,6 @@ export function AppSidebar({
 							<SidebarGroupContent>
 								<SidebarMenu className='gap-1'>
 									{items.map((item) => {
-										if (item.action) {
-											return (
-												<SidebarMenuItem key={item.name}>
-													<SidebarMenuButton
-														tooltip={item.name}
-														onClick={() => {
-															if (item.action === 'connect-mcp') {
-																setConnectDialogOpen(true);
-															}
-															handleLinkClick();
-														}}
-													>
-														{item.icon && <item.icon />}
-														<span>{item.name}</span>
-														<ArrowUpRight className='ml-auto opacity-60' />
-													</SidebarMenuButton>
-												</SidebarMenuItem>
-											);
-										}
-
 										const href = item.href ?? '/';
 										const isActive =
 											pathname === href ||
@@ -299,11 +277,6 @@ export function AppSidebar({
 					{children}
 				</div>
 			</SidebarInset>
-
-			<McpSkillsConnectDialog
-				open={connectDialogOpen}
-				onOpenChange={setConnectDialogOpen}
-			/>
 		</>
 	);
 }

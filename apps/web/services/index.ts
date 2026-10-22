@@ -10,7 +10,6 @@ export * from './inventory.service';
 export * from './orders.service';
 export * from './pipeline.service';
 export * from './revenue.service';
-export * from './skills.service';
 export * from './sku.service';
 export * from './training-videos.service';
 export * from './users.service';

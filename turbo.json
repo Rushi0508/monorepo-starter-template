@@ -3,7 +3,7 @@
 	"ui": "tui",
 	"envMode": "loose",
 	"concurrency": "20",
-	"globalDependencies": ["docs/**", "skills/**"],
+	"globalDependencies": ["docs/**"],
 	"tasks": {
 		"start": {
 			"dependsOn": ["^start"]
