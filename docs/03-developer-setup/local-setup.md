@@ -56,7 +56,7 @@ Only users that exist in the database can sign in. Add yourself once with Prisma
 add everyone else from the **Users** page.
 
 Outside production the one-time password is always `123456` and is also printed in the
-API logs. See [Authentication](../architecture/authentication.md).
+API logs. See [Authentication](../technical/authentication.md).
 
 ## Run with Docker
 

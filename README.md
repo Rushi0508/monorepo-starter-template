@@ -19,8 +19,8 @@ the **Users** page. Outside production the one-time password is `123456`.
 ## Documentation
 
 The Help Center at http://localhost:3000/docs is rendered from the [`docs`](./docs) folder.
-Start with [Local setup](./docs/01-getting-started/local-setup.md), and see
-[Writing docs](./docs/03-guides/writing-docs.md) to add pages.
+Start with [Local setup](./docs/03-developer-setup/local-setup.md), and see
+[Writing docs](./docs/05-developer-guides/writing-docs.md) to add pages.
 
 ## Scripts
 

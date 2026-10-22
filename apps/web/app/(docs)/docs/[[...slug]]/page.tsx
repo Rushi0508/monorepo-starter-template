@@ -84,8 +84,7 @@ const DocPage = async ({ params }: DocPageProps) => {
 							)}
 							{!doc && (
 								<p className='mt-1 text-base leading-7 text-muted-foreground'>
-									Guides, architecture notes and training videos for this
-									project.
+									How the product works, how to use it, and how it is built.
 								</p>
 							)}
 						</header>

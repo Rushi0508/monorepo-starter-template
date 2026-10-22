@@ -1,11 +1,11 @@
 ---
 order: 1
-title: Overview
+title: Project overview
 description: What this starter includes and how the pieces fit together.
 last_verified: 2026-10-23
 ---
 
-# Overview
+# Project overview
 
 This is a pnpm + Turborepo monorepo with a Next.js web app and a NestJS API, sharing code
 through workspace packages.
@@ -24,5 +24,5 @@ through workspace packages.
 ## Where to go next
 
 - [Local setup](./local-setup.md) gets the project running on your machine.
-- [Monorepo layout](../architecture/monorepo.md) explains what lives where.
-- [Writing docs](../guides/writing-docs.md) shows how to add pages like this one.
+- [Monorepo layout](../technical/monorepo.md) explains what lives where.
+- [Writing docs](../developer-guides/writing-docs.md) shows how to add pages like this one.

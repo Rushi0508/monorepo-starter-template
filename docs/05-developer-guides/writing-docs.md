@@ -12,8 +12,8 @@ Every page in the Help Center is a Markdown file in the `docs/` folder.
 ## Add or edit a page
 
 1. Pick the folder that fits the topic. The number prefix sets the order in the sidebar
-   and is left out of the URL, so `docs/03-guides/writing-docs.md` serves at
-   `/docs/guides/writing-docs`.
+   and is left out of the URL, so `docs/05-developer-guides/writing-docs.md` serves
+   at `/docs/developer-guides/writing-docs`.
 2. Start every page with frontmatter, then a `#` heading:
 
    ```md
