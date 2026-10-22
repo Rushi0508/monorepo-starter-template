@@ -17,8 +17,12 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<html lang='en' className={sourceSerif.variable} suppressHydrationWarning>
-			<body className={`${googleSans.className} antialiased overflow-hidden`}>
+		<html
+			lang='en'
+			className={`${googleSans.variable} ${sourceSerif.variable}`}
+			suppressHydrationWarning
+		>
+			<body className='font-sans antialiased overflow-hidden'>
 				<ReactQueryClientProvider>
 					<Suspense fallback={<GlobalLoading />}>
 						<Providers>{children}</Providers>

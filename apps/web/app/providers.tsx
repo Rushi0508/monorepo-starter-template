@@ -5,7 +5,7 @@ import { ThemeProvider } from '@repo/ui/components/theme-provider';
 import { TooltipProvider } from '@repo/ui/components/tooltip';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { BreadcrumbProvider } from '@/contexts/BreadcrumbContext';
-import { poppins } from '@/lib/fonts';
+import { googleSans } from '@/lib/fonts';
 
 const Providers = ({ children }: { children: React.ReactNode }) => {
 	return (
@@ -21,7 +21,7 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
 						richColors
 						closeButton
 						position='top-right'
-						style={{ fontFamily: poppins.style.fontFamily }}
+						style={{ fontFamily: googleSans.style.fontFamily }}
 					/>
 					<TooltipProvider>{children}</TooltipProvider>
 					{process.env.NODE_ENV === 'development' && (
