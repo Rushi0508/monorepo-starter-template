@@ -85,7 +85,8 @@ const PaginationControls = ({
 					onClick={() => currentPage > 1 && goToPage(currentPage - 1)}
 					className={cn(
 						'cursor-pointer',
-						currentPage === 1 && 'text-gray-400 hover:text-gray-400'
+						currentPage === 1 &&
+							'text-muted-foreground/50 hover:text-muted-foreground/50'
 					)}
 				/>
 
@@ -116,7 +117,8 @@ const PaginationControls = ({
 					onClick={() => currentPage < pageCount && goToPage(currentPage + 1)}
 					className={cn(
 						'cursor-pointer',
-						currentPage === pageCount && 'text-gray-400 hover:text-gray-400'
+						currentPage === pageCount &&
+							'text-muted-foreground/50 hover:text-muted-foreground/50'
 					)}
 				/>
 			</PaginationContent>

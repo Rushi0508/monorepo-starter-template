@@ -29,3 +29,5 @@ apps/*/build/
 packages/*/node_modules/
 packages/*/dist/
 packages/*/build/
+# Server secrets are provided at runtime (docker-compose env_file), never baked into the image
+apps/server/.env

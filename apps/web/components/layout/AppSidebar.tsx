@@ -41,6 +41,7 @@ import { useBreadcrumb } from '@/contexts/BreadcrumbContext';
 import { NavHeader } from './NavHeader';
 import NavSearch from './NavSearch';
 import ProfileDropdown from './ProfileDropdown';
+import ThemeToggle from './ThemeToggle';
 
 const formatSegmentName = (segment: string): string => {
 	return segment
@@ -273,6 +274,7 @@ export function AppSidebar({
 					</div>
 					<div className='ml-auto flex items-center gap-4'>
 						<NavSearch />
+						<ThemeToggle />
 						<ProfileDropdown />
 					</div>
 				</header>

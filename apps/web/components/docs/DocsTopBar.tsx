@@ -2,6 +2,7 @@ import { Separator } from '@repo/ui/components/separator';
 import { SidebarTrigger } from '@repo/ui/components/sidebar';
 import NavSearch from '@/components/layout/NavSearch';
 import ProfileDropdown from '@/components/layout/ProfileDropdown';
+import ThemeToggle from '@/components/layout/ThemeToggle';
 
 export function DocsTopBar({ title }: { title: string }) {
 	return (
@@ -12,6 +13,7 @@ export function DocsTopBar({ title }: { title: string }) {
 			{/* Same controls, spacing and order as the app shell's header. */}
 			<div className='ml-auto flex items-center gap-4'>
 				<NavSearch />
+				<ThemeToggle />
 				<ProfileDropdown />
 			</div>
 		</header>

@@ -12,7 +12,8 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
 		<SidebarProvider>
 			<ThemeProvider
 				attribute='class'
-				forcedTheme='light'
+				defaultTheme='light'
+				enableSystem
 				disableTransitionOnChange
 			>
 				<BreadcrumbProvider>

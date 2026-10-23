@@ -16,7 +16,7 @@ export const TableHeaderWithTooltip = ({
 	title: string;
 	tooltip: string;
 }) => (
-	<th className='border border-gray-300 px-3 py-2 text-left'>
+	<th className='border border-border px-3 py-2 text-left'>
 		<div className='flex items-center gap-1.5'>
 			<span>{title}</span>
 			<CustomTooltip content={tooltip}>
@@ -70,7 +70,7 @@ export const SampleFormatLayout = ({
 				<div>
 					<h4 className='mb-2 font-medium'>Sample Data Format:</h4>
 					<div className='max-w-full overflow-x-auto'>
-						<table className='w-max min-w-max border-collapse border border-gray-300 text-xs'>
+						<table className='w-max min-w-max border-collapse border border-border text-xs'>
 							<thead>
 								<tr className='bg-muted/50'>
 									{columns.map((col) => (
@@ -88,7 +88,7 @@ export const SampleFormatLayout = ({
 										{columns.map((col) => (
 											<td
 												key={col.header}
-												className='border border-gray-300 px-3 py-2'
+												className='border border-border px-3 py-2'
 											>
 												{col.sampleValue || '-'}
 											</td>
