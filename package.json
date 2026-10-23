@@ -81,6 +81,6 @@
 		"dependency-cruiser": "^18.5.0",
 		"lefthook": "^2.1.16",
 		"turbo": "^2.5.4",
-		"typescript": "^6.0.3"
+		"typescript": "^7.0.2"
 	}
 }
