@@ -67,7 +67,7 @@ const DocPage = async ({ params }: DocPageProps) => {
 					<article className='min-w-0 max-w-3xl'>
 						<header className='mb-4 border-b pb-4'>
 							<div className='flex flex-wrap items-start justify-between gap-x-6 gap-y-1'>
-								<h1 className='font-heading text-3xl leading-none'>
+								<h1 className='text-2xl font-semibold tracking-tight'>
 									{heading}
 								</h1>
 								{doc && (

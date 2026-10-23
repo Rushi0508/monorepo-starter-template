@@ -36,7 +36,7 @@ function DrawerOverlay({
 		<DrawerPrimitive.Overlay
 			data-slot='drawer-overlay'
 			className={cn(
-				'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-primary/40',
+				'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50',
 				className
 			)}
 			{...props}
@@ -101,10 +101,7 @@ function DrawerTitle({
 	return (
 		<DrawerPrimitive.Title
 			data-slot='drawer-title'
-			className={cn(
-				'font-heading text-foreground text-2xl leading-none',
-				className
-			)}
+			className={cn('text-foreground font-semibold', className)}
 			{...props}
 		/>
 	);

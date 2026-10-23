@@ -219,7 +219,7 @@ export function CustomTable<TData>({
 
 	return (
 		<div>
-			<div className={`rounded-xl overflow-hidden border bg-card ${className}`}>
+			<div className={`rounded-xl overflow-hidden border ${className}`}>
 				<Table>
 					<TableHeader className='bg-muted'>
 						{table.getHeaderGroups().map((headerGroup) => (

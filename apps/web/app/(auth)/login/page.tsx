@@ -162,7 +162,7 @@ export default function LoginForm() {
 								priority
 							/>
 						</div>
-						<CardTitle className='font-heading text-primary text-center text-4xl font-normal'>
+						<CardTitle className='font-heading text-primary text-center text-3xl font-semibold'>
 							Welcome to Starter
 						</CardTitle>
 						{/* Description animates when step changes */}

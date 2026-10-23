@@ -22,7 +22,7 @@ const NavSearch = () => {
 	return (
 		<>
 			<Button
-				variant='subtle'
+				variant='outline'
 				className='text-muted-foreground w-52 justify-between gap-2 text-sm font-normal'
 				onClick={() => setOpen(true)}
 			>

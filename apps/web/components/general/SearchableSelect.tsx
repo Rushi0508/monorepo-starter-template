@@ -64,7 +64,7 @@ const SearchableSelect = ({
 		<Popover open={open} onOpenChange={setOpen} modal={true}>
 			<PopoverTrigger asChild>
 				<Button
-					variant='subtle'
+					variant='outline'
 					role='combobox'
 					aria-expanded={open}
 					disabled={disabled}

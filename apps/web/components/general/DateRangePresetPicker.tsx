@@ -153,7 +153,7 @@ export function DateRangePresetPicker({
 			<Popover open={open} onOpenChange={setOpen}>
 				<PopoverTrigger asChild>
 					<Button
-						variant='subtle'
+						variant='outline'
 						className={cn(
 							'shadow-xs flex h-9 w-full min-w-fit justify-between gap-4 font-normal',
 							buttonClassName

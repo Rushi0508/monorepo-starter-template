@@ -46,7 +46,7 @@ export const FilterDialog = ({
 		<Dialog open={isOpen} onOpenChange={setIsOpen}>
 			<DialogTrigger asChild>
 				{trigger ?? (
-					<Button variant='subtle' className='flex items-center gap-2'>
+					<Button variant='outline' className='flex items-center gap-2'>
 						<Filter className='h-4 w-4' />
 						Filters
 						{activeFiltersCount > 0 && (

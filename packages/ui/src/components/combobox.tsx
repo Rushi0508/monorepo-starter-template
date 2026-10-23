@@ -87,7 +87,7 @@ export function Combobox({
 		<Popover open={open} onOpenChange={setOpen} modal>
 			<PopoverTrigger asChild>
 				<Button
-					variant='subtle'
+					variant='outline'
 					role='combobox'
 					aria-expanded={open}
 					className={cn(

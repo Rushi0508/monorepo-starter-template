@@ -96,7 +96,7 @@ const CountrySelect = ({
 			<PopoverTrigger asChild>
 				<Button
 					type='button'
-					variant='subtle'
+					variant='outline'
 					className='bg-input hover:bg-input/80 flex h-9 gap-1 rounded-e-none rounded-s-md border-none px-3'
 					disabled={disabled}
 				>

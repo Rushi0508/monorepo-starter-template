@@ -37,7 +37,7 @@ const multiSelectVariants = cva(
 		variants: {
 			variant: {
 				default:
-					'border-foreground/10 text-foreground bg-muted hover:bg-muted/80',
+					'border-foreground/10 text-foreground bg-card hover:bg-card/80',
 				secondary:
 					'border-foreground/10 bg-secondary text-secondary-foreground hover:bg-secondary/80',
 				destructive:
@@ -244,10 +244,9 @@ export const MultiSelect = React.forwardRef<
 					<Button
 						ref={ref}
 						{...props}
-						variant='subtle'
 						onClick={handleTogglePopover}
 						className={cn(
-							'flex h-auto min-h-10 w-full items-center justify-between rounded-md border border-input bg-card p-1 shadow-xs hover:bg-card dark:bg-input/30 dark:hover:bg-input/50 [&_svg]:pointer-events-auto',
+							'flex h-auto min-h-10 w-full items-center justify-between rounded-md border bg-inherit p-1 shadow-none hover:bg-inherit [&_svg]:pointer-events-auto',
 							compact && 'overflow-hidden',
 							className
 						)}

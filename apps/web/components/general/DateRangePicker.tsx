@@ -90,7 +90,7 @@ export function DateRangePicker({
 			<Popover open={open} onOpenChange={setOpen}>
 				<PopoverTrigger asChild>
 					<Button
-						variant='subtle'
+						variant='outline'
 						id='date-picker'
 						className={cn(
 							'shadow-xs flex w-full min-w-fit justify-between gap-4 font-normal h-9',
