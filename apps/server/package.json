@@ -60,7 +60,7 @@
 		"@types/cookie-parser": "^1.4.10",
 		"@types/express": "^5.0.0",
 		"@types/jest": "^30.0.0",
-		"@types/node": "^22.10.7",
+		"@types/node": "^26.6.5",
 		"@types/pg": "^8.16.0",
 		"@types/supertest": "^7.2.0",
 		"jest": "^30.0.0",
