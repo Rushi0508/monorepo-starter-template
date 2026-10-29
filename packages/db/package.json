@@ -23,6 +23,6 @@
 		"@prisma/adapter-pg": "^7.2.0",
 		"@prisma/client": "^7.2.0",
 		"@prisma/client-runtime-utils": "7.9.1",
-		"dotenv": "^17.4.2"
+		"dotenv": "^18.0.8"
 	}
 }
