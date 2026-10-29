@@ -11,10 +11,10 @@
 		"postinstall": "pnpm build"
 	},
 	"dependencies": {
-		"nodemailer": "^10.0.9"
+		"nodemailer": "^10.2.0"
 	},
 	"devDependencies": {
 		"@types/node": "^22.10.7",
-		"@types/nodemailer": "^8.0.0"
+		"@types/nodemailer": "^8.0.2"
 	}
 }
